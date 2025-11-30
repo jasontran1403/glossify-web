@@ -1,0 +1,77 @@
+$flaticon_wionfont: "flaticon_WION";
+
+@font-face {
+    font-family: $flaticon_wionfont;
+    src: url("./flaticon_WION.woff2?1af72611aeacce1e3d034c502313dfa7") format("woff2"),
+url("./flaticon_WION.woff?1af72611aeacce1e3d034c502313dfa7") format("woff"),
+url("./flaticon_WION.eot?1af72611aeacce1e3d034c502313dfa7#iefix") format("embedded-opentype"),
+url("./flaticon_WION.ttf?1af72611aeacce1e3d034c502313dfa7") format("truetype"),
+url("./flaticon_WION.svg?1af72611aeacce1e3d034c502313dfa7#flaticon_WION") format("svg");
+}
+
+i[class^="flaticon-"]:before, i[class*=" flaticon-"]:before {
+    font-family: flaticon_WION !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+$flaticon_wionmap: (
+    "gear": "\f101",
+    "customer-support": "\f102",
+    "money-bag": "\f103",
+    "developer": "\f104",
+    "password": "\f105",
+    "megaphone": "\f106",
+    "vector": "\f107",
+    "data": "\f108",
+    "wrench": "\f109",
+    "briefcase": "\f10a",
+    "like": "\f10b",
+    "trophy": "\f10c",
+    "user": "\f10d",
+);
+
+.flaticon-gear:before {
+    content: map-get($flaticon_wionmap, "gear");
+}
+.flaticon-customer-support:before {
+    content: map-get($flaticon_wionmap, "customer-support");
+}
+.flaticon-money-bag:before {
+    content: map-get($flaticon_wionmap, "money-bag");
+}
+.flaticon-developer:before {
+    content: map-get($flaticon_wionmap, "developer");
+}
+.flaticon-password:before {
+    content: map-get($flaticon_wionmap, "password");
+}
+.flaticon-megaphone:before {
+    content: map-get($flaticon_wionmap, "megaphone");
+}
+.flaticon-vector:before {
+    content: map-get($flaticon_wionmap, "vector");
+}
+.flaticon-data:before {
+    content: map-get($flaticon_wionmap, "data");
+}
+.flaticon-wrench:before {
+    content: map-get($flaticon_wionmap, "wrench");
+}
+.flaticon-briefcase:before {
+    content: map-get($flaticon_wionmap, "briefcase");
+}
+.flaticon-like:before {
+    content: map-get($flaticon_wionmap, "like");
+}
+.flaticon-trophy:before {
+    content: map-get($flaticon_wionmap, "trophy");
+}
+.flaticon-user:before {
+    content: map-get($flaticon_wionmap, "user");
+}

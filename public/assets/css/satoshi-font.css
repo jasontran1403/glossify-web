@@ -1,0 +1,30 @@
+@font-face {
+  font-family: 'SatoshiRegular';
+  src: url('../fonts/SatoshiRegular.eot');
+  src: url('../fonts/SatoshiRegular.eot') format('embedded-opentype'),
+       url('../fonts/SatoshiRegular.woff2') format('woff2'),
+       url('../fonts/SatoshiRegular.woff') format('woff'),
+       url('../fonts/SatoshiRegular.ttf') format('truetype'),
+       url('../fonts/SatoshiRegular.svg#SatoshiRegular') format('svg');
+}
+
+@font-face {
+  font-family: 'SatoshiMedium';
+  src: url('../fonts/SatoshiMedium.eot');
+  src: url('../fonts/SatoshiMedium.eot') format('embedded-opentype'),
+       url('../fonts/SatoshiMedium.woff2') format('woff2'),
+       url('../fonts/SatoshiMedium.woff') format('woff'),
+       url('../fonts/SatoshiMedium.ttf') format('truetype'),
+       url('../fonts/SatoshiMedium.svg#SatoshiMedium') format('svg');
+}
+
+
+@font-face {
+  font-family: 'SatoshiBold';
+  src: url('../fonts/SatoshiBold.eot');
+  src: url('../fonts/SatoshiBold.eot') format('embedded-opentype'),
+       url('../fonts/SatoshiBold.woff2') format('woff2'),
+       url('../fonts/SatoshiBold.woff') format('woff'),
+       url('../fonts/SatoshiBold.ttf') format('truetype'),
+       url('../fonts/SatoshiBold.svg#SatoshiBold') format('svg');
+}
