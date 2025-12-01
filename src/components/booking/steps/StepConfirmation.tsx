@@ -98,8 +98,7 @@ const StepConfirmation: React.FC<StepProps> = ({
     try {
       // Step 1: Create user account if new customer
       if (bookingData.isNewCustomer) {
-        const password = generatePassword(6);
-        const userCreated = await createUserAccount(password);
+        const userCreated = await createUserAccount();
         
         if (!userCreated) {
           setIsSubmitting!(false);
