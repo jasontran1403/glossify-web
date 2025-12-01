@@ -4,27 +4,6 @@ import { StepProps, ApiResponse, BookingCreatedResponse } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 
-// Generate random password
-const generatePassword = (length: number = 6): string => {
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const numbers = '0123456789';
-  const special = '!@#$%^&*';
-  const allChars = uppercase + lowercase + numbers + special;
-  
-  let password = '';
-  password += uppercase[Math.floor(Math.random() * uppercase.length)];
-  password += lowercase[Math.floor(Math.random() * lowercase.length)];
-  password += numbers[Math.floor(Math.random() * numbers.length)];
-  password += special[Math.floor(Math.random() * special.length)];
-  
-  for (let i = 4; i < length; i++) {
-    password += allChars[Math.floor(Math.random() * allChars.length)];
-  }
-  
-  return password.split('').sort(() => Math.random() - 0.5).join('');
-};
-
 const StepConfirmation: React.FC<StepProps> = ({ 
   bookingData, 
   updateBookingData, 
@@ -34,20 +13,17 @@ const StepConfirmation: React.FC<StepProps> = ({
 }) => {
   const [error, setError] = useState<string>('');
 
-  const createUserAccount = async (password: string): Promise<boolean> => {
+  const createUserAccount = async (): Promise<boolean> => {
     try {
       const registerPayload = {
         phoneNumber: bookingData.phoneNumber,
         fullName: bookingData.fullName,
         username: bookingData.phoneNumber,
-        password: password,
-        avatar: 'https://www.namecard.online/tracy.png',
         dateOfBirth: bookingData.dateOfBirth || null,
-        role: 'USER',
       };
 
       console.log('Creating new user account:', registerPayload);
-      console.log(`NEW USER CREATED: Phone: ${bookingData.phoneNumber}, Name: ${bookingData.fullName}, Password: ${password}`);
+      console.log(`NEW USER CREATED: Phone: ${bookingData.phoneNumber}, Name: ${bookingData.fullName}`);
 
       const response = await axios.post<ApiResponse<any>>(
         `${API_BASE_URL}/auth/register`,
