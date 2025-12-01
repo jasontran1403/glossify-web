@@ -14,7 +14,7 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
     bookingData.bookingDate ? new Date(bookingData.bookingDate + 'T00:00:00') : today
   );
   // ← FIX: Correct destructuring - add 'schedules' state variable
-  const [setSchedules] = useState<Record<number, StaffScheduleSlot[]>>({});
+  const [schedules, setSchedules] = useState<Record<number, StaffScheduleSlot[]>>({});
   const [loadingSchedules, setLoadingSchedules] = useState<boolean>(false);
   const [selectedTime, setSelectedTime] = useState<string>(bookingData.bookingTime || '');
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
