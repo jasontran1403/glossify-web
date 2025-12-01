@@ -1,6 +1,6 @@
- 
 
-import {  Suspense } from "react";
+
+import { Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomeOne from "./components/homes/home-1";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -12,6 +12,7 @@ import Contactus3 from "./components/contact-us3";
 import NotFound from "./error";
 import PortfolioOne from "./components/portfolio-1";
 import Contactus1 from "./components/contact-us1";
+import BookingFlow from "./components/booking/BookingFlow";
 
 const router = createBrowserRouter([
   { path: "/", element: <HomeOne /> },
@@ -22,7 +23,8 @@ const router = createBrowserRouter([
   { path: "/termofservice", element: <Faq /> },
   { path: "/blog", element: <Blog /> },
   { path: "/contact-us", element: <Contactus3 /> },
-  { path: "/book-now", element: <Contactus1 /> },
+  // { path: "/book-now", element: <Contactus1 /> },
+  { path: "/book-now", element: <BookingFlow /> },
 
   { path: "*", element: <NotFound /> },
 ]);

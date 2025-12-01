@@ -3917,7 +3917,8 @@ img.social-hide {
         height: 300px;
         margin: 0;
         opacity: 1;
-        position: static
+        position: static;
+        overflow: hidden;
     }
 }
 
