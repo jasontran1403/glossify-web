@@ -84,7 +84,7 @@ export default function OffCanvas({ menuOpen, setMenuOpen }: OffCanvasProps) {
           </ul>
         </div>
         <div className="wionmobile-menu-btn">
-          <Link className="wiondefault-btn wionheader-btn btn2" to="/contact-us1">Book Now
+          <Link className="wiondefault-btn wionheader-btn btn2" to="/book-now">Book Now
             <span className="wionbutton-icon">
               <img className="arry1" src="assets/images/svg/arrow-right.png" alt="" />
               <img className="arry2" src="assets/images/svg/arrow-right.png" alt="" />
