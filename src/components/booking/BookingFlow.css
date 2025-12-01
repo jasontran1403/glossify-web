@@ -21,6 +21,19 @@
   position: relative;
 }
 
+.booking-steps-progress.aos-init {
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+/* Chrome, Safari and Opera */
+.element-class::-webkit-scrollbar {
+  display: none;
+}
+
 .step-number {
   width: 50px;
   height: 50px;
@@ -47,9 +60,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
   }
+
   50% {
     box-shadow: 0 4px 25px rgba(102, 126, 234, 0.6);
   }
@@ -150,7 +166,8 @@
 }
 
 .react-datepicker__day--outside-month {
-  opacity: 0.3; /* Optional: Fade out non-month days */
+  opacity: 0.3;
+  /* Optional: Fade out non-month days */
 }
 
 .existing-user-message i {
@@ -206,6 +223,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -217,6 +235,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -532,8 +551,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
@@ -551,6 +575,7 @@
     opacity: 0;
     transform: translateY(50px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1046,21 +1071,25 @@
     left: 1px;
     top: 19px;
   }
+
   54% {
     width: 0;
     left: 1px;
     top: 19px;
   }
+
   70% {
     width: 50px;
     left: -8px;
     top: 37px;
   }
+
   84% {
     width: 17px;
     left: 21px;
     top: 48px;
   }
+
   100% {
     width: 25px;
     left: 14px;
@@ -1074,16 +1103,19 @@
     right: 46px;
     top: 54px;
   }
+
   65% {
     width: 0;
     right: 46px;
     top: 54px;
   }
+
   84% {
     width: 55px;
     right: 0;
     top: 35px;
   }
+
   100% {
     width: 47px;
     right: 8px;
@@ -1433,7 +1465,8 @@ textarea:focus {
   grid-template-columns: repeat(7, 1fr) !important;
   gap: 0 !important;
   margin: 0 !important;
-  padding: 0 3px !important; /* Match .react-datepicker__month padding */
+  padding: 0 3px !important;
+  /* Match .react-datepicker__month padding */
   font-weight: 500;
   text-transform: uppercase;
   font-size: 12px;
@@ -1463,19 +1496,24 @@ textarea:focus {
 }
 
 .react-datepicker__header {
-  background: transparent !important; /* Custom header overrides */
+  background: transparent !important;
+  /* Custom header overrides */
   border-bottom: none !important;
-  border-radius: 0 !important; /* Handled by custom */
-  padding: 0 !important; /* Custom handles padding */
+  border-radius: 0 !important;
+  /* Handled by custom */
+  padding: 0 !important;
+  /* Custom handles padding */
 }
 
 .react-datepicker__current-month {
-  display: none !important; /* Hidden by custom header */
+  display: none !important;
+  /* Hidden by custom header */
 }
 
 .react-datepicker__month {
   margin: 0 !important;
-  padding: 10px !important; /* Match weekday-header padding for alignment */
+  padding: 10px !important;
+  /* Match weekday-header padding for alignment */
 }
 
 /* Week rows - Use grid for perfect column alignment */
@@ -1496,7 +1534,8 @@ textarea:focus {
   width: auto !important;
   height: auto !important;
   line-height: normal !important;
-  padding: 0.75rem 0 !important; /* Adjust for consistent height ~2.5rem total with padding */
+  padding: 0.75rem 0 !important;
+  /* Adjust for consistent height ~2.5rem total with padding */
   border-radius: 8px !important;
   font-size: 14px;
   font-weight: 500;
@@ -1658,7 +1697,7 @@ textarea:focus {
   z-index: 0;
 }
 
-.time-slot > * {
+.time-slot>* {
   position: relative;
   z-index: 1;
 }
@@ -1863,6 +1902,7 @@ textarea:focus {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
