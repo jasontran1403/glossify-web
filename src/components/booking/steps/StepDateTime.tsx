@@ -20,6 +20,13 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
 
   useEffect(() => {
+    if (Object.keys(schedules).length > 0) {
+      console.log('Current schedules:', schedules);
+    }
+  }, [schedules]);
+
+
+  useEffect(() => {
     if (selectedDate) {
       // Reset selected time when date changes
       setSelectedTime('');
@@ -308,9 +315,8 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
                         {morningSlots.map((slot) => (
                           <button
                             key={slot.time}
-                            className={`time-slot ${!slot.available ? 'disabled' : ''} ${
-                              selectedTime === slot.time ? 'selected' : ''
-                            }`}
+                            className={`time-slot ${!slot.available ? 'disabled' : ''} ${selectedTime === slot.time ? 'selected' : ''
+                              }`}
                             onClick={() => slot.available && handleTimeSelect(slot.time)}
                             disabled={!slot.available}
                           >
@@ -332,9 +338,8 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
                         {afternoonSlots.map((slot) => (
                           <button
                             key={slot.time}
-                            className={`time-slot ${!slot.available ? 'disabled' : ''} ${
-                              selectedTime === slot.time ? 'selected' : ''
-                            }`}
+                            className={`time-slot ${!slot.available ? 'disabled' : ''} ${selectedTime === slot.time ? 'selected' : ''
+                              }`}
                             onClick={() => slot.available && handleTimeSelect(slot.time)}
                             disabled={!slot.available}
                           >
@@ -357,11 +362,11 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
           <div>
             <strong>Your Appointment:</strong>
             <p>
-              {selectedDate.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              {selectedDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
               })}
               {' at '}
               {selectedTime}
@@ -372,8 +377,8 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
       )}
 
       <div className="step-navigation">
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="wiondefault-btn outline-btn"
           onClick={prevStep}
         >
@@ -384,8 +389,8 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
           Back
         </button>
 
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="wiondefault-btn submit-btn"
           onClick={handleContinue}
           disabled={!selectedDate || !selectedTime}
