@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { StepProps, ApiResponse, BookingCreatedResponse } from '../types';
+import { StepProps, ApiResponse, BookingCreatedResponse, RegisterResponse } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 
@@ -13,7 +13,7 @@ const StepConfirmation: React.FC<StepProps> = ({
 }) => {
   const [error, setError] = useState<string>('');
 
-  const createUserAccount = async (): Promise<boolean> => {
+  const createUserAccount = async (): Promise<number | null> => {
     try {
       const registerPayload = {
         phoneNumber: bookingData.phoneNumber,
@@ -25,32 +25,33 @@ const StepConfirmation: React.FC<StepProps> = ({
       console.log('Creating new user account:', registerPayload);
       console.log(`NEW USER CREATED: Phone: ${bookingData.phoneNumber}, Name: ${bookingData.fullName}`);
 
-      const response = await axios.post<ApiResponse<any>>(
+      const response = await axios.post<ApiResponse<number>>(
         `${API_BASE_URL}/auth/register`,
         registerPayload
       );
 
       if (response.data.code === 900) {
-        console.log('User account created successfully');
-        return true;
+        const newCustomerId = response.data.data;
+        console.log('User account created successfully. Customer ID:', newCustomerId);
+        return newCustomerId;
       } else {
         console.error('Failed to create user account:', response.data.message);
         setError('Failed to create user account: ' + response.data.message);
-        return false;
+        return null;
       }
     } catch (err: any) {
       console.error('Error creating user account:', err);
       setError('Error creating user account: ' + (err.response?.data?.message || err.message));
-      return false;
+      return null;
     }
   };
 
-  const createBooking = async (): Promise<void> => {
+  const createBooking = async (customerId: number): Promise<void> => {
     try {
       const dateTimeStr = `${bookingData.bookingDate}T${bookingData.bookingTime}:00`;
 
       const bookingPayload = {
-        customerId: bookingData.customerId,
+        customerId: customerId, // Sử dụng customerId được truyền vào
         customerPhone: bookingData.phoneNumber,
         storeId: bookingData.storeId,
         startTime: dateTimeStr,
@@ -96,23 +97,33 @@ const StepConfirmation: React.FC<StepProps> = ({
     setError('');
 
     try {
+      let customerId = bookingData.customerId;
+
       // Step 1: Create user account if new customer
       if (bookingData.isNewCustomer) {
-        const userCreated = await createUserAccount();
+        const newCustomerId = await createUserAccount();
         
-        if (!userCreated) {
+        if (!newCustomerId) {
           setIsSubmitting!(false);
           return;
         }
+        
+        // Cập nhật customerId mới vào bookingData
+        customerId = newCustomerId;
+        updateBookingData({ customerId: newCustomerId });
       }
 
-      // Step 2: Create booking
-      await createBooking();
+      // Step 2: Create booking với customerId đúng
+      if (customerId) {
+        await createBooking(customerId);
+      } else {
+        setError('Customer ID is missing. Please try again.');
+        setIsSubmitting!(false);
+      }
       
     } catch (err: any) {
       console.error('Error in booking process:', err);
       setError('An unexpected error occurred. Please try again.');
-    } finally {
       setIsSubmitting!(false);
     }
   };
