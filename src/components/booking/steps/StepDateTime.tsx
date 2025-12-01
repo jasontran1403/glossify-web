@@ -13,6 +13,7 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
   const [selectedDate, setSelectedDate] = useState<Date | null>(
     bookingData.bookingDate ? new Date(bookingData.bookingDate + 'T00:00:00') : today
   );
+  // ← FIX: Correct destructuring - add 'schedules' state variable
   const [setSchedules] = useState<Record<number, StaffScheduleSlot[]>>({});
   const [loadingSchedules, setLoadingSchedules] = useState<boolean>(false);
   const [selectedTime, setSelectedTime] = useState<string>(bookingData.bookingTime || '');
@@ -66,7 +67,7 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
         schedulesMap[staffId] = slots;
       });
 
-      setSchedules(schedulesMap);
+      setSchedules(schedulesMap);  // ← Now 'setSchedules' is the setter function
       calculateAvailableSlots(schedulesMap);
     } catch (error) {
       console.error('Error fetching schedules:', error);
