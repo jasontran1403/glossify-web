@@ -12,7 +12,7 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
   const [selectedDate, setSelectedDate] = useState<Date | null>(
     bookingData.bookingDate ? new Date(bookingData.bookingDate + 'T00:00:00') : today
   );
-  const [schedules, setSchedules] = useState<Record<number, StaffScheduleSlot[]>>({});
+  const [setSchedules] = useState<Record<number, StaffScheduleSlot[]>>({});
   const [loadingSchedules, setLoadingSchedules] = useState<boolean>(false);
   const [selectedTime, setSelectedTime] = useState<string>(bookingData.bookingTime || '');
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
