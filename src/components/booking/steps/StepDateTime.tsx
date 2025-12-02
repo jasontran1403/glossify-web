@@ -12,7 +12,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
   const [selectedDate, setSelectedDate] = useState<Date | null>(
     bookingData.bookingDate ? new Date(bookingData.bookingDate + 'T00:00:00') : today
   );
-  const [setSchedules] = useState<Record<number, StaffScheduleSlot[]>>({});
   const [loadingSchedules, setLoadingSchedules] = useState<boolean>(false);
   const [selectedTime, setSelectedTime] = useState<string>(bookingData.bookingTime || '');
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
@@ -60,7 +59,7 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
         schedulesMap[staffId] = slots;
       });
 
-      setSchedules(schedulesMap);
+      // ✅ FIXED: Remove unused setSchedules(schedulesMap); since schedulesMap is used locally right away
       calculateAvailableSlots(schedulesMap);
     } catch (error) {
       console.error('❌ Error fetching schedules:', error);
