@@ -4,13 +4,6 @@ import { StepProps, ApiResponse, BookingCreatedResponse, StaffScheduleSlot } fro
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 
-interface ValidationError {
-  staffName: string;
-  serviceName: string;
-  conflictTime: string;
-  message: string;
-}
-
 const StepConfirmation: React.FC<StepProps> = ({ 
   bookingData, 
   updateBookingData, 
@@ -19,215 +12,255 @@ const StepConfirmation: React.FC<StepProps> = ({
   setIsSubmitting 
 }) => {
   const [error, setError] = useState<string>('');
-  const [validationError, setValidationError] = useState<ValidationError | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState<boolean>(true);
 
-  // Validate booking availability when component mounts
+  // ⭐ Debug: Component lifecycle
+  useEffect(() => {
+    console.log('\n🎯 StepConfirmation MOUNTED');
+    console.log('   📊 Initial State:');
+    console.log('      - isSubmitting:', isSubmitting);
+    console.log('      - isValidating:', isValidating);
+    console.log('      - bookingData:', bookingData);
+    
+    return () => {
+      console.log('\n🎯 StepConfirmation UNMOUNTED');
+    };
+  }, []);
+
+  // ⭐ Debug: State changes
+  useEffect(() => {
+    console.log('🔄 State Change: isSubmitting =', isSubmitting);
+  }, [isSubmitting]);
+
+  useEffect(() => {
+    console.log('🔄 State Change: isValidating =', isValidating);
+  }, [isValidating]);
+
+  useEffect(() => {
+    if (error) console.log('❌ State Change: error =', error);
+  }, [error]);
+
+  useEffect(() => {
+    if (validationError) console.log('⚠️ State Change: validationError =', validationError);
+  }, [validationError]);
+
+  // Validate availability on mount
   useEffect(() => {
     validateBookingAvailability();
   }, []);
 
   /**
-   * Validate that all selected time slots are still available
-   * This prevents race conditions where slots become unavailable
-   * between selection and confirmation
+   * Validate that selected time slots are still available
    */
   const validateBookingAvailability = async () => {
+    console.log('\n🔍 VALIDATING BOOKING AVAILABILITY');
+    console.log('   📅 Date:', bookingData.bookingDate);
+    console.log('   ⏰ Time:', bookingData.bookingTime);
+    console.log('   👥 Services:', bookingData.selectedServices.length);
+    
     setIsValidating(true);
     setValidationError(null);
 
     try {
+      // Get unique staff IDs
       const staffIds = [...new Set(bookingData.selectedServices.map(s => s.staffId))];
-      const dateStr = bookingData.bookingDate;
+      console.log('   🔍 Checking staff:', staffIds);
 
-      // Fetch current schedules for all staff
-      const schedulePromises = staffIds.map(async (staffId) => {
-        const response = await axios.get<ApiResponse<StaffScheduleSlot[]>>(
+      // Fetch schedules for all staff
+      const schedulePromises = staffIds.map(staffId =>
+        axios.get<ApiResponse<StaffScheduleSlot[]>>(
           `${API_BASE_URL}/user/schedule/${staffId}`,
-          { params: { date: dateStr } }
-        );
-        return { 
-          staffId, 
-          slots: response.data.data || [] 
-        };
-      });
+          { params: { date: bookingData.bookingDate } }
+        ).then(res => ({ staffId, slots: res.data.data || [] }))
+      );
 
       const results = await Promise.all(schedulePromises);
-      
-      // Build schedules map
       const schedulesMap: Record<number, StaffScheduleSlot[]> = {};
       results.forEach(({ staffId, slots }) => {
         schedulesMap[staffId] = slots;
+        console.log(`   📋 Staff ${staffId} has ${slots.length} booked slots`);
       });
 
-      // Check availability for each service
-      const startTime = bookingData.bookingTime;
-      const [startHours, startMins] = startTime.split(':').map(Number);
+      // Check each service
+      const [startHours, startMins] = bookingData.bookingTime.split(':').map(Number);
       
       for (const service of bookingData.selectedServices) {
-        // Calculate actual service time based on order
         const offset = (service.order - 1) * 15;
         const totalMins = startHours * 60 + startMins + offset;
-        const serviceHours = Math.floor(totalMins / 60);
-        const serviceMins = totalMins % 60;
-        const serviceTime = `${serviceHours.toString().padStart(2, '0')}:${serviceMins.toString().padStart(2, '0')}`;
-
-        // Get staff's booked slots
-        const staffBookedSlots = schedulesMap[service.staffId] || [];
+        const serviceTime = `${Math.floor(totalMins / 60).toString().padStart(2, '0')}:${(totalMins % 60).toString().padStart(2, '0')}`;
         
-        // Check if this time slot is booked
-        const isBooked = staffBookedSlots.some(slot => slot.startTime === serviceTime);
+        const staffSlots = schedulesMap[service.staffId] || [];
+        
+        // ✅ FIXED: Check staffTimeSlots (same logic as StepDateTime)
+        const conflictingBooking = staffSlots.find(slot => {
+          const timeSlots = slot.staffTimeSlots && slot.staffTimeSlots.length > 0
+            ? slot.staffTimeSlots
+            : [{ startTime: slot.startTime, endTime: slot.endTime, serviceName: '', order: 0 }];
+          
+          return timeSlots.some(ts => ts.startTime === serviceTime);
+        });
 
-        if (isBooked) {
-          // Found conflict - set error and stop
-          setValidationError({
-            staffName: service.staffName,
-            serviceName: service.serviceName,
-            conflictTime: serviceTime,
-            message: `${service.staffName} is not available at ${serviceTime} for ${service.serviceName}. This time slot has been booked by another customer.`
-          });
+        console.log(`   🔎 Checking: ${service.staffName} @ ${serviceTime} - ${conflictingBooking ? '❌ BOOKED' : '✅ Available'}`);
+
+        if (conflictingBooking) {
+          const errorMsg = `${service.staffName} is not available at ${serviceTime} for ${service.serviceName}. This slot has been booked by another customer.`;
+          console.log(`   ⚠️ CONFLICT FOUND: ${errorMsg}`);
+          setValidationError(errorMsg);
           setIsValidating(false);
           return;
         }
       }
 
-      // All slots are available
-      console.log('✅ All time slots are available');
+      console.log('   ✅ All slots are AVAILABLE');
       setIsValidating(false);
+      
     } catch (err: any) {
-      console.error('Error validating booking availability:', err);
-      setValidationError({
-        staffName: 'Unknown',
-        serviceName: '',
-        conflictTime: '',
-        message: 'Failed to verify availability. Please try again or select a different time.'
-      });
+      console.error('   ❌ Validation Error:', err);
+      setValidationError('Failed to verify availability. Please try again.');
       setIsValidating(false);
     }
   };
 
-  const createUserAccount = async (): Promise<number | null> => {
-    try {
-      const registerPayload = {
-        phoneNumber: bookingData.phoneNumber,
-        fullName: bookingData.fullName,
-        username: bookingData.phoneNumber,
-        dateOfBirth: bookingData.dateOfBirth || null,
-      };
-
-      console.log('Creating new user account:', registerPayload);
-
-      const response = await axios.post<ApiResponse<number>>(
-        `${API_BASE_URL}/auth/register`,
-        registerPayload
-      );
-
-      if (response.data.code === 900) {
-        const newCustomerId = response.data.data;
-        console.log('✅ User account created. Customer ID:', newCustomerId);
-        return newCustomerId;
-      } else {
-        console.error('Failed to create user account:', response.data.message);
-        setError('Failed to create user account: ' + response.data.message);
-        return null;
-      }
-    } catch (err: any) {
-      console.error('Error creating user account:', err);
-      setError('Error creating user account: ' + (err.response?.data?.message || err.message));
-      return null;
-    }
-  };
-
-  const createBooking = async (customerId: number): Promise<void> => {
-    try {
-      const dateTimeStr = `${bookingData.bookingDate}T${bookingData.bookingTime}:00`;
-
-      const bookingPayload = {
-        customerId: customerId,
-        customerPhone: bookingData.phoneNumber,
-        storeId: bookingData.storeId,
-        startTime: dateTimeStr,
-        selectedServices: bookingData.selectedServices.map(service => ({
-          serviceId: service.serviceId,
-          staffId: service.staffId,
-          order: service.order,
-        })),
-      };
-
-      console.log('Creating booking:', bookingPayload);
-
-      const response = await axios.post<ApiResponse<BookingCreatedResponse>>(
-        `${API_BASE_URL}/user/create`,
-        bookingPayload
-      );
-
-      if (response.data.code === 900) {
-        console.log('✅ Booking created successfully:', response.data.data);
-        updateBookingData({ bookingId: response.data.data.id });
-      } else {
-        setError('Failed to create booking: ' + response.data.message);
-      }
-    } catch (err: any) {
-      console.error('Error creating booking:', err);
-      
-      let errorMessage = 'Failed to create booking. Please try again.';
-      
-      if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      
-      setError(errorMessage);
-    }
-  };
-
+  /**
+   * Handle booking submission
+   */
   const handleSubmit = async () => {
-    if (isSubmitting) return;
-    
+    console.log('\n🚀 CONFIRM BUTTON CLICKED');
+    console.log('   Current State:');
+    console.log('      - isSubmitting:', isSubmitting);
+    console.log('      - isValidating:', isValidating);
+    console.log('      - validationError:', validationError);
+
+    if (isSubmitting) {
+      console.log('   ⚠️ Already submitting, ignoring click');
+      return;
+    }
+
+    if (isValidating) {
+      console.log('   ⚠️ Still validating, ignoring click');
+      return;
+    }
+
+    if (validationError) {
+      console.log('   ⚠️ Validation error exists, ignoring click');
+      return;
+    }
+
+    console.log('   ✅ Starting submission process');
     setIsSubmitting!(true);
     setError('');
 
     try {
       let customerId = bookingData.customerId;
 
-      // Step 1: Create user account if new customer
+      // Step 1: Create user account if needed
       if (bookingData.isNewCustomer) {
-        const newCustomerId = await createUserAccount();
-        
-        if (!newCustomerId) {
-          setIsSubmitting!(false);
-          return;
+        console.log('\n📝 STEP 1: Creating new user account');
+        console.log('   Phone:', bookingData.phoneNumber);
+        console.log('   Name:', bookingData.fullName);
+        console.log('   DOB:', bookingData.dateOfBirth);
+
+        const registerResponse = await axios.post<ApiResponse<number>>(
+          `${API_BASE_URL}/auth/register`,
+          {
+            phoneNumber: bookingData.phoneNumber,
+            fullName: bookingData.fullName,
+            username: bookingData.phoneNumber,
+            dateOfBirth: bookingData.dateOfBirth || null,
+          }
+        );
+
+        console.log('   Response:', registerResponse.data);
+
+        if (registerResponse.data.code !== 900) {
+          throw new Error(registerResponse.data.message || 'Failed to create account');
         }
-        
-        customerId = newCustomerId;
-        updateBookingData({ customerId: newCustomerId });
+
+        customerId = registerResponse.data.data;
+        updateBookingData({ customerId });
+        console.log('   ✅ Account created. Customer ID:', customerId);
+      } else {
+        console.log('\n📝 STEP 1: Using existing customer ID:', customerId);
       }
 
-      // Step 2: Create booking with correct customerId
-      if (customerId) {
-        await createBooking(customerId);
-      } else {
-        setError('Customer ID is missing. Please try again.');
-        setIsSubmitting!(false);
+      // Step 2: Create booking
+      console.log('\n📅 STEP 2: Creating booking');
+      console.log('   Customer ID:', customerId);
+      console.log('   Store ID:', bookingData.storeId);
+      console.log('   DateTime:', `${bookingData.bookingDate}T${bookingData.bookingTime}`);
+      console.log('   Services:', bookingData.selectedServices.length);
+
+      const bookingPayload = {
+        customerId: customerId,
+        customerPhone: bookingData.phoneNumber,
+        storeId: bookingData.storeId,
+        startTime: `${bookingData.bookingDate}T${bookingData.bookingTime}:00`,
+        selectedServices: bookingData.selectedServices.map(s => ({
+          serviceId: s.serviceId,
+          staffId: s.staffId,
+          order: s.order,
+        })),
+      };
+
+      console.log('   Payload:', bookingPayload);
+
+      const bookingResponse = await axios.post<ApiResponse<BookingCreatedResponse>>(
+        `${API_BASE_URL}/user/create`,
+        bookingPayload
+      );
+
+      console.log('   Response:', bookingResponse.data);
+
+      if (bookingResponse.data.code !== 900) {
+        throw new Error(bookingResponse.data.message || 'Failed to create booking');
       }
+
+      console.log('   ✅ Booking created. Booking ID:', bookingResponse.data.data.id);
+      updateBookingData({ bookingId: bookingResponse.data.data.id });
+
+      console.log('\n🎉 SUCCESS! Moving to success page');
+      // Note: Parent component will handle navigation when bookingId is set
       
     } catch (err: any) {
-      console.error('Error in booking process:', err);
-      setError('An unexpected error occurred. Please try again.');
+      console.error('\n❌ ERROR during booking process:');
+      console.error('   Type:', err.constructor.name);
+      console.error('   Message:', err.message);
+      console.error('   Response:', err.response?.data);
+      console.error('   Full error:', err);
+
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to create booking';
+      setError(errorMsg);
+      
+    } finally {
+      console.log('\n🏁 Booking process FINISHED');
+      console.log('   Setting isSubmitting = false');
       setIsSubmitting!(false);
     }
   };
 
-  const getTotalPrice = (): number => {
-    return bookingData.selectedServices.reduce((sum, s) => sum + s.price, 0);
+  /**
+   * Handle back button
+   */
+  const handleBack = () => {
+    console.log('\n🔙 BACK BUTTON CLICKED');
+    console.log('   Current isSubmitting:', isSubmitting);
+    console.log('   Current isValidating:', isValidating);
+    
+    if (isSubmitting) {
+      console.log('   ⚠️ Cannot go back - currently submitting');
+      return;
+    }
+    
+    console.log('   ✅ Going back to previous step');
+    prevStep();
   };
 
-  const getTotalDuration = (): number => {
-    return bookingData.selectedServices.length * 15;
-  };
-
-  const formatDate = (): string => {
+  // Helper functions
+  const getTotalPrice = () => bookingData.selectedServices.reduce((sum, s) => sum + s.price, 0);
+  const getTotalDuration = () => bookingData.selectedServices.length * 15;
+  
+  const formatDate = () => {
     if (!bookingData.bookingDate) return '';
     const date = new Date(bookingData.bookingDate);
     return date.toLocaleDateString('en-US', { 
@@ -238,11 +271,6 @@ const StepConfirmation: React.FC<StepProps> = ({
     });
   };
 
-  const formatTime = (): string => {
-    if (!bookingData.bookingTime) return '';
-    return bookingData.bookingTime;
-  };
-
   return (
     <div className="wioncontact-box">
       <div className="wioncontact-title">
@@ -250,7 +278,7 @@ const StepConfirmation: React.FC<StepProps> = ({
         <p className="subtitle">Please confirm all details are correct</p>
       </div>
 
-      {/* Validation Error Banner - Shows conflict with staff */}
+      {/* Validation Error Banner */}
       {validationError && (
         <div className="validation-error-banner">
           <div className="error-icon">
@@ -258,26 +286,8 @@ const StepConfirmation: React.FC<StepProps> = ({
           </div>
           <div className="error-content">
             <h5>⚠️ Booking Conflict Detected</h5>
-            <p className="error-main">{validationError.message}</p>
-            <div className="conflict-details">
-              <div className="conflict-item">
-                <strong>Staff:</strong> {validationError.staffName}
-              </div>
-              {validationError.serviceName && (
-                <div className="conflict-item">
-                  <strong>Service:</strong> {validationError.serviceName}
-                </div>
-              )}
-              {validationError.conflictTime && (
-                <div className="conflict-item">
-                  <strong>Conflict Time:</strong> {validationError.conflictTime}
-                </div>
-              )}
-            </div>
-            <button 
-              className="change-time-btn"
-              onClick={prevStep}
-            >
+            <p className="error-main">{validationError}</p>
+            <button className="change-time-btn" onClick={handleBack}>
               <i className="fas fa-arrow-left"></i>
               Change Date/Time
             </button>
@@ -339,7 +349,6 @@ const StepConfirmation: React.FC<StepProps> = ({
         </h5>
         <div className="info-grid">
           <div className="info-item">
-            <span className="label">Store:</span>
             <span className="value">{bookingData.storeName}</span>
           </div>
         </div>
@@ -358,7 +367,7 @@ const StepConfirmation: React.FC<StepProps> = ({
           </div>
           <div className="info-item">
             <span className="label">Time:</span>
-            <span className="value">{formatTime()}</span>
+            <span className="value">{bookingData.bookingTime}</span>
           </div>
           <div className="info-item">
             <span className="label">Duration:</span>
@@ -409,8 +418,12 @@ const StepConfirmation: React.FC<StepProps> = ({
         <button 
           type="button" 
           className="wiondefault-btn submit-btn"
-          onClick={prevStep}
-          disabled={isSubmitting || isValidating}
+          onClick={handleBack}
+          disabled={isSubmitting}
+          style={{ 
+            opacity: isSubmitting ? 0.5 : 1,
+            cursor: isSubmitting ? 'not-allowed' : 'pointer'
+          }}
         >
           <span className="wionbutton-icon left">
             <img className="arry1" src="/assets/images/svg/arrow-left.png" alt="" />
@@ -447,19 +460,76 @@ const StepConfirmation: React.FC<StepProps> = ({
         </button>
       </div>
 
+      {/* Debug Panel (Development Only) */}
       {process.env.NODE_ENV === 'development' && (
         <div style={{ 
           marginTop: '20px', 
-          padding: '10px', 
+          padding: '15px', 
           background: '#f0f0f0', 
-          borderRadius: '5px',
+          borderRadius: '8px',
           fontSize: '12px',
-          fontFamily: 'monospace'
+          fontFamily: 'monospace',
+          border: '2px solid #ddd'
         }}>
-          <strong>Debug Info:</strong>
-          <div>isSubmitting: {String(isSubmitting)}</div>
-          <div>Back button disabled: {String(isSubmitting)}</div>
-          <div>Confirm button disabled: {String(isSubmitting)}</div>
+          <strong style={{ fontSize: '14px', display: 'block', marginBottom: '10px' }}>
+            🐛 Debug Info:
+          </strong>
+          <div style={{ display: 'grid', gap: '5px' }}>
+            <div>
+              <strong>isSubmitting:</strong> 
+              <span style={{ 
+                marginLeft: '10px', 
+                padding: '2px 8px', 
+                background: isSubmitting ? '#ff6b6b' : '#51cf66',
+                color: 'white',
+                borderRadius: '4px'
+              }}>
+                {String(isSubmitting)}
+              </span>
+            </div>
+            <div>
+              <strong>isValidating:</strong> 
+              <span style={{ 
+                marginLeft: '10px', 
+                padding: '2px 8px', 
+                background: isValidating ? '#ffd43b' : '#51cf66',
+                color: isValidating ? 'black' : 'white',
+                borderRadius: '4px'
+              }}>
+                {String(isValidating)}
+              </span>
+            </div>
+            <div>
+              <strong>validationError:</strong> 
+              <span style={{ 
+                marginLeft: '10px', 
+                padding: '2px 8px', 
+                background: validationError ? '#ff6b6b' : '#51cf66',
+                color: 'white',
+                borderRadius: '4px'
+              }}>
+                {validationError ? 'YES' : 'NO'}
+              </span>
+            </div>
+            <div>
+              <strong>error:</strong> 
+              <span style={{ 
+                marginLeft: '10px', 
+                padding: '2px 8px', 
+                background: error ? '#ff6b6b' : '#51cf66',
+                color: 'white',
+                borderRadius: '4px'
+              }}>
+                {error ? 'YES' : 'NO'}
+              </span>
+            </div>
+            <div style={{ marginTop: '5px', paddingTop: '5px', borderTop: '1px solid #ccc' }}>
+              <strong>Back button disabled:</strong> {String(isSubmitting)}
+            </div>
+            <div>
+              <strong>Confirm button disabled:</strong> {String(isSubmitting || isValidating || validationError !== null)}
+            </div>
+          </div>
         </div>
       )}
     </div>
