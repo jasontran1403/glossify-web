@@ -7,32 +7,20 @@ import { StepProps, TimeSlot, StaffScheduleSlot, ApiResponse } from '../types';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 
 const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nextStep, prevStep }) => {
-  // ← FIX: Default to today if no prior date (triggers auto-load and highlights today in calendar)
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalize to start of day for consistency
+  today.setHours(0, 0, 0, 0);
   const [selectedDate, setSelectedDate] = useState<Date | null>(
     bookingData.bookingDate ? new Date(bookingData.bookingDate + 'T00:00:00') : today
   );
-  // ← FIX: Correct destructuring - add 'schedules' state variable
   const [schedules, setSchedules] = useState<Record<number, StaffScheduleSlot[]>>({});
   const [loadingSchedules, setLoadingSchedules] = useState<boolean>(false);
   const [selectedTime, setSelectedTime] = useState<string>(bookingData.bookingTime || '');
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
 
   useEffect(() => {
-    if (Object.keys(schedules).length > 0) {
-      console.log('Current schedules:', schedules);
-    }
-  }, [schedules]);
-
-
-  useEffect(() => {
     if (selectedDate) {
-      // Reset selected time when date changes
       setSelectedTime('');
       updateBookingData({ bookingTime: '' });
-
-      // Fetch schedules for new date
       fetchSchedulesForAllStaff();
     }
   }, [selectedDate]);
@@ -59,8 +47,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
           { params: { date: dateStr } }
         );
 
-        // Server returns list of BOOKED slots
-        // Empty list = staff completely free
         if (response.data.code === 900) {
           return { staffId, slots: response.data.data || [] };
         }
@@ -74,10 +60,10 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
         schedulesMap[staffId] = slots;
       });
 
-      setSchedules(schedulesMap);  // ← Now 'setSchedules' is the setter function
+      setSchedules(schedulesMap);
       calculateAvailableSlots(schedulesMap);
     } catch (error) {
-      console.error('Error fetching schedules:', error);
+      console.error('❌ Error fetching schedules:', error);
       alert('Failed to load schedules');
     } finally {
       setLoadingSchedules(false);
@@ -107,23 +93,14 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
   };
 
   /**
-   * Check if a time slot is available for booking
+   * ✅ UPDATED: Check if a time slot is available for booking
    * 
-   * LOGIC:
-   * - Server returns list of BOOKED slots only
-   * - Empty list [] = Staff completely free = All slots AVAILABLE
-   * - Has data = Those slots are BLOCKED
-   * 
-   * To book successfully:
-   * - For each service, calculate actual time (startTime + offset)
-   * - Check if that time EXISTS in staff's booked slots
-   * - If EXISTS in response → BLOCKED (already booked)
-   * - If NOT EXISTS in response → AVAILABLE (can book)
+   * Uses staffTimeSlots if available, fallback to old startTime/endTime
+   * for backward compatibility
    */
   const checkSlotAvailability = (startTime: string, schedulesMap: Record<number, StaffScheduleSlot[]>): boolean => {
     const { selectedServices } = bookingData;
 
-    // Check all services in the booking
     for (let i = 0; i < selectedServices.length; i++) {
       const service = selectedServices[i];
 
@@ -135,26 +112,43 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
       const serviceMins = totalMins % 60;
       const serviceTime = `${serviceHours.toString().padStart(2, '0')}:${serviceMins.toString().padStart(2, '0')}`;
 
-      // Get staff's booked slots (những giờ ĐÃ BOOKED)
-      const staffBookedSlots = schedulesMap[service.staffId] || [];
+      // Get staff's booked schedules
+      const staffSchedules = schedulesMap[service.staffId] || [];
 
-      // Check if this service time is in the BOOKED list
-      const isSlotBooked = staffBookedSlots.some(slot => slot.startTime === serviceTime);
+      // Convert serviceTime to minutes for comparison
+      const [serviceTimeHours, serviceTimeMins] = serviceTime.split(':').map(Number);
+      const serviceTimeInMinutes = serviceTimeHours * 60 + serviceTimeMins;
 
-      // If slot is in booked list → CANNOT book
+      // ✅ Check against staffTimeSlots (with fallback to old logic)
+      const isSlotBooked = staffSchedules.some(schedule => {
+        // ⭐ Use staffTimeSlots if available, otherwise fallback to old startTime/endTime
+        const timeSlots = schedule.staffTimeSlots && schedule.staffTimeSlots.length > 0
+          ? schedule.staffTimeSlots
+          : [{ startTime: schedule.startTime, endTime: schedule.endTime, serviceName: '', order: 0 }]; // Fallback
+
+        return timeSlots.some(slot => {
+          const [slotStartHours, slotStartMins] = slot.startTime.split(':').map(Number);
+          const [slotEndHours, slotEndMins] = slot.endTime.split(':').map(Number);
+          
+          const slotStartMinutes = slotStartHours * 60 + slotStartMins;
+          const slotEndMinutes = slotEndHours * 60 + slotEndMins;
+
+          // Check if serviceTime is within [startTime, endTime) range
+          const isInRange = serviceTimeInMinutes >= slotStartMinutes && serviceTimeInMinutes < slotEndMinutes;
+          console.log(`        ${serviceTimeInMinutes} >= ${slotStartMinutes} && ${serviceTimeInMinutes} < ${slotEndMinutes} = ${isInRange}`);
+
+          return isInRange;
+        });
+      });
+
       if (isSlotBooked) {
         return false;
       }
     }
 
-    // All services can be scheduled → slot is AVAILABLE
     return true;
   };
 
-  /**
-   * Format time display - No AM/PM, just 24-hour format
-   * 9:00, 9:15, ... 16:45
-   */
   const formatTimeDisplay = (hours: number, mins: number): string => {
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   };
@@ -177,31 +171,27 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
       return;
     }
     const finalDateStr = getLocalDateString(selectedDate);
-    console.log('Final date to backend:', finalDateStr);  // Debug log
-    updateBookingData({ bookingDate: finalDateStr });  // Ensure it's updated
+    updateBookingData({ bookingDate: finalDateStr });
     nextStep();
   };
 
-  // Split slots into Morning and Afternoon
   const morningSlots = availableSlots.filter(slot => {
     const [hours, mins] = slot.time.split(':').map(Number);
     const totalMins = hours * 60 + mins;
-    return totalMins <= 11 * 60 + 45; // <= 11:45
+    return totalMins <= 11 * 60 + 45;
   });
 
   const afternoonSlots = availableSlots.filter(slot => {
     const [hours, mins] = slot.time.split(':').map(Number);
     const totalMins = hours * 60 + mins;
-    return totalMins >= 12 * 60; // >= 12:00
+    return totalMins >= 12 * 60;
   });
 
   const minDate = new Date();
-  minDate.setHours(0, 0, 0, 0); // Normalize minDate to start of today
+  minDate.setHours(0, 0, 0, 0);
   const maxDate = new Date();
   maxDate.setMonth(maxDate.getMonth() + 2);
 
-  // ← NEW: Custom header to display weekday names explicitly in the calendar header
-  // This ensures the weekday row is visible and customizable (e.g., full names)
   const renderCustomHeader = ({
     date,
     decreaseMonth,
@@ -216,7 +206,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
     nextMonthButtonDisabled: boolean;
   }) => (
     <div className="custom-datepicker-header">
-      {/* Navigation bar with month/year */}
       <div className="header-nav">
         <button
           type="button"
@@ -239,11 +228,10 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
         </button>
       </div>
 
-      {/* Weekday header row - full names for clarity */}
       <div className="weekday-header">
         {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day) => (
           <span key={day} className="weekday">
-            {day.substring(0, 3)} {/* Abbreviated, or use full: {day} */}
+            {day.substring(0, 3)}
           </span>
         ))}
       </div>
@@ -267,15 +255,13 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
             maxDate={maxDate}
             inline
             calendarClassName="custom-calendar"
-            // ← NEW: Custom header to explicitly show weekday names in header
             renderCustomHeader={renderCustomHeader}
-            showWeekNumbers={false} // Optional: Hide week numbers to focus on weekdays
+            showWeekNumbers={false}
           />
         </div>
 
         {selectedDate && (
           <div className="time-slots-section">
-            {/* Fixed Header */}
             <div className="time-slots-header">
               <h5>Select Time</h5>
 
@@ -295,7 +281,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
               </div>
             </div>
 
-            {/* Scrollable Content */}
             <div className="time-slots-content">
               {loadingSchedules ? (
                 <div className="loading-inline">
@@ -304,7 +289,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
                 </div>
               ) : (
                 <>
-                  {/* Morning Section */}
                   {morningSlots.length > 0 && (
                     <div className="time-section">
                       <div className="time-section-header">
@@ -327,7 +311,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
                     </div>
                   )}
 
-                  {/* Afternoon Section */}
                   {afternoonSlots.length > 0 && (
                     <div className="time-section">
                       <div className="time-section-header">
@@ -379,7 +362,7 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
       <div className="step-navigation">
         <button
           type="button"
-          className="wiondefault-btn outline-btn"
+          className="wiondefault-btn submit-btn"
           onClick={prevStep}
         >
           <span className="wionbutton-icon left">
@@ -395,7 +378,7 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
           onClick={handleContinue}
           disabled={!selectedDate || !selectedTime}
         >
-          Continue to Confirmation
+          Continue
           <span className="wionbutton-icon">
             <img className="arry1" src="/assets/images/svg/arrow-right.png" alt="" />
             <img className="arry2" src="/assets/images/svg/arrow-right.png" alt="" />

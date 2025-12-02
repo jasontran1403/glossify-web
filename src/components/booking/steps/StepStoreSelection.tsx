@@ -90,7 +90,7 @@ const StepStoreSelection: React.FC<StepProps> = ({ bookingData, updateBookingDat
       <div className="step-navigation">
         <button 
           type="button" 
-          className="wiondefault-btn outline-btn"
+          className="wiondefault-btn submit-btn"
           onClick={prevStep}
         >
           <span className="wionbutton-icon left">
@@ -106,12 +106,13 @@ const StepStoreSelection: React.FC<StepProps> = ({ bookingData, updateBookingDat
           onClick={handleContinue}
           disabled={!selectedStore}
         >
-          Continue to Services
+          Continue
           <span className="wionbutton-icon">
             <img className="arry1" src="/assets/images/svg/arrow-right.png" alt="" />
             <img className="arry2" src="/assets/images/svg/arrow-right.png" alt="" />
           </span>
         </button>
+        
       </div>
     </div>
   );

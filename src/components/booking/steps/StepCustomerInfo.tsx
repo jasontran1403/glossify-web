@@ -252,19 +252,21 @@ const StepCustomerInfo: React.FC<StepProps> = ({ bookingData, updateBookingData,
             href="/" 
             className="wiondefault-btn submit-btn"
           >
-            Back To Home
+            Back
           </a>
           <button 
             type="submit" 
             className="wiondefault-btn submit-btn"
             disabled={isCheckingPhone}
           >
-            Continue to Store Selection
+            Continue
             <span className="wionbutton-icon">
               <img className="arry1" src="/assets/images/svg/arrow-right.png" alt="" />
               <img className="arry2" src="/assets/images/svg/arrow-right.png" alt="" />
             </span>
           </button>
+
+          
         </div>
       </form>
     </div>

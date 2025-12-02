@@ -295,7 +295,7 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
       <div className="step-navigation">
         <button 
           type="button" 
-          className="wiondefault-btn outline-btn"
+          className="wiondefault-btn submit-btn"
           onClick={prevStep}
         >
           <span className="wionbutton-icon left">
@@ -311,7 +311,7 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
           onClick={handleContinue}
           disabled={selectedServices.length === 0}
         >
-          Continue to Date & Time
+          Continue
           <span className="wionbutton-icon">
             <img className="arry1" src="/assets/images/svg/arrow-right.png" alt="" />
             <img className="arry2" src="/assets/images/svg/arrow-right.png" alt="" />

@@ -74,14 +74,43 @@ export interface TimeSlot {
   available: boolean;
 }
 
+// ✅ NEW: Staff time slot (15 phút)
+export interface StaffTimeSlot {
+  startTime: string;  // "10:00"
+  endTime: string;    // "10:15"
+  serviceName: string;
+  order: number;
+}
+
+// ✅ UPDATED: StaffScheduleSlot with staffTimeSlots
 export interface StaffScheduleSlot {
-  startTime: string;
-  endTime: string;
-  status: string;
-  bookingId?: number;
-  fullName?: string;
-  services?: number;
+  bookingId: number;
+  fullName: string;
+  customerAvt?: string;
+  
+  // ⚠️ DEPRECATED: Booking total time (not staff specific)
+  // Keep for backward compatibility
+  startTime: string;  // Booking start
+  endTime: string;    // Booking end
+  
+  // ✅ NEW: Staff's actual time slots
+  // Use this field to check availability!
+  staffTimeSlots?: StaffTimeSlot[];  // Optional for backward compatibility
+  
+  services: number;
   serviceItems?: any[];
+  status: string;
+  totalAmount?: number;
+  totalCashAmount?: number;
+  discountCode?: string;
+  amountDiscount?: number;
+  discount?: number;
+  tips?: number;
+  paymentMethod?: string;
+  cashDiscount?: number;
+  reason?: string;
+  allStaffIds?: number[];
+  allStaffNames?: string[];
 }
 
 export interface ApiResponse<T> {

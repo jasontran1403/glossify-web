@@ -29,6 +29,451 @@
   /* Firefox */
 }
 
+/* ==========================================
+   STEP CONFIRMATION - VALIDATION STYLES
+   ========================================== */
+
+/* Validation Error Banner - Shows booking conflicts */
+.validation-error-banner {
+  display: flex;
+  gap: 20px;
+  padding: 25px;
+  background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+  border: 2px solid #fc8181;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  animation: slideInDown 0.3s ease;
+  box-shadow: 0 4px 12px rgba(252, 129, 129, 0.2);
+}
+
+.validation-error-banner .error-icon {
+  flex-shrink: 0;
+}
+
+.validation-error-banner .error-icon i {
+  font-size: 48px;
+  color: #e53e3e;
+}
+
+.validation-error-banner .error-content {
+  flex: 1;
+}
+
+.validation-error-banner h5 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #c53030;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.validation-error-banner .error-main {
+  font-size: 16px;
+  color: #742a2a;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.validation-error-banner .conflict-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 15px;
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 4px solid #e53e3e;
+}
+
+.validation-error-banner .conflict-item {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.validation-error-banner .conflict-item strong {
+  color: #2d3748;
+  min-width: 120px;
+}
+
+.validation-error-banner .change-time-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.validation-error-banner .change-time-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.validation-error-banner .change-time-btn i {
+  font-size: 14px;
+}
+
+/* Validating Banner - Shows loading state */
+.validating-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #667eea;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.validating-banner i {
+  font-size: 20px;
+}
+
+/* Regular Error Banner */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  background: #fff5f5;
+  border: 2px solid #fc8181;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #c53030;
+  font-size: 15px;
+}
+
+.error-banner i {
+  font-size: 20px;
+  color: #e53e3e;
+}
+
+/* Confirmation Section Styles */
+.confirmation-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 2px solid #f7fafc;
+  transition: all 0.2s ease;
+}
+
+.confirmation-section:hover {
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.confirmation-section .section-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.confirmation-section .section-title i {
+  font-size: 20px;
+  color: #667eea;
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-item .label {
+  font-size: 13px;
+  color: #718096;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-item .value {
+  font-size: 16px;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+/* Info Badge */
+.info-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #667eea;
+  margin-top: 10px;
+}
+
+.info-badge i {
+  font-size: 16px;
+}
+
+.info-badge.new-customer {
+  background: linear-gradient(135deg, rgba(237, 137, 54, 0.1) 0%, rgba(251, 191, 36, 0.1) 100%);
+  border-color: #ed8936;
+  color: #c05621;
+}
+
+.info-badge.new-customer i {
+  color: #ed8936;
+}
+
+/* Services List Confirmation */
+.services-list-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.service-confirm-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: #f7fafc;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.service-confirm-item:hover {
+  background: #edf2f7;
+  transform: translateX(5px);
+}
+
+.service-confirm-item .service-order {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.service-confirm-item .service-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.service-confirm-item .service-details strong {
+  font-size: 16px;
+  color: #2d3748;
+}
+
+.service-confirm-item .service-details small {
+  font-size: 13px;
+  color: #718096;
+}
+
+.service-confirm-item .service-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #667eea;
+}
+
+/* Total Price Confirmation */
+.total-price-confirm {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  border-radius: 8px;
+  border: 2px solid #667eea;
+}
+
+.total-price-confirm span {
+  font-size: 16px;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.total-price-confirm strong {
+  font-size: 24px;
+  color: #667eea;
+  font-weight: 700;
+}
+
+/* Confirmation Notes */
+.confirmation-notes {
+  background: #fffaf0;
+  border: 2px solid #fbd38d;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.confirmation-notes h6 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #c05621;
+  margin-bottom: 15px;
+}
+
+.confirmation-notes h6 i {
+  font-size: 18px;
+  color: #ed8936;
+}
+
+.confirmation-notes ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.confirmation-notes li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: #744210;
+  line-height: 1.6;
+}
+
+.confirmation-notes li::before {
+  content: '•';
+  color: #ed8936;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.confirmation-notes li.highlight {
+  background: #fff;
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 3px solid #ed8936;
+  font-weight: 600;
+}
+
+.confirmation-notes li.highlight::before {
+  content: '⭐';
+}
+
+/* Animation */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .step-navigation {
+    flex-direction: row!important;
+  }
+
+  .validation-error-banner {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .validation-error-banner .error-icon i {
+    font-size: 36px;
+  }
+
+  .validation-error-banner h5 {
+    font-size: 18px;
+  }
+
+  .validation-error-banner .conflict-item {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .validation-error-banner .conflict-item strong {
+    min-width: auto;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-confirm-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .service-confirm-item .service-price {
+    align-self: flex-end;
+  }
+
+  .total-price-confirm {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .confirmation-section {
+    padding: 15px;
+  }
+
+  .validation-error-banner {
+    padding: 15px;
+  }
+
+  .validation-error-banner h5 {
+    font-size: 16px;
+  }
+
+  .validation-error-banner .error-main {
+    font-size: 14px;
+  }
+
+  .validation-error-banner .change-time-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* Chrome, Safari and Opera */
 .element-class::-webkit-scrollbar {
   display: none;
@@ -104,7 +549,6 @@
   background: white;
   border-radius: 20px;
   padding: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }
 
 .wioncontact-title h4 {
@@ -764,7 +1208,7 @@
   display: flex;
   gap: 20px;
   justify-content: center;
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .legend-item {
@@ -1355,7 +1799,7 @@
   }
 
   .wioncontact-box {
-    padding: 25px 20px;
+    padding: 0;
   }
 
   .stores-grid {
@@ -1737,8 +2181,8 @@ textarea:focus {
 /* Time Slots Legend */
 .time-slots-legend {
   display: flex;
-  gap: 20px;
-  padding: 15px;
+  gap: 10px;
+  padding: 10px;
   background: #f7fafc;
   border-radius: 8px;
   margin-top: 20px;
@@ -1881,8 +2325,8 @@ textarea:focus {
   }
 
   .time-slots-legend {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    gap: 5px;
   }
 
   .selected-datetime-display {

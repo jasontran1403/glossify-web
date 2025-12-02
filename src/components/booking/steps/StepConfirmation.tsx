@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { StepProps, ApiResponse, BookingCreatedResponse } from '../types';
+import { StepProps, ApiResponse, BookingCreatedResponse, StaffScheduleSlot } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
+
+interface ValidationError {
+  staffName: string;
+  serviceName: string;
+  conflictTime: string;
+  message: string;
+}
 
 const StepConfirmation: React.FC<StepProps> = ({ 
   bookingData, 
@@ -12,6 +19,92 @@ const StepConfirmation: React.FC<StepProps> = ({
   setIsSubmitting 
 }) => {
   const [error, setError] = useState<string>('');
+  const [validationError, setValidationError] = useState<ValidationError | null>(null);
+  const [isValidating, setIsValidating] = useState<boolean>(true);
+
+  // Validate booking availability when component mounts
+  useEffect(() => {
+    validateBookingAvailability();
+  }, []);
+
+  /**
+   * Validate that all selected time slots are still available
+   * This prevents race conditions where slots become unavailable
+   * between selection and confirmation
+   */
+  const validateBookingAvailability = async () => {
+    setIsValidating(true);
+    setValidationError(null);
+
+    try {
+      const staffIds = [...new Set(bookingData.selectedServices.map(s => s.staffId))];
+      const dateStr = bookingData.bookingDate;
+
+      // Fetch current schedules for all staff
+      const schedulePromises = staffIds.map(async (staffId) => {
+        const response = await axios.get<ApiResponse<StaffScheduleSlot[]>>(
+          `${API_BASE_URL}/user/schedule/${staffId}`,
+          { params: { date: dateStr } }
+        );
+        return { 
+          staffId, 
+          slots: response.data.data || [] 
+        };
+      });
+
+      const results = await Promise.all(schedulePromises);
+      
+      // Build schedules map
+      const schedulesMap: Record<number, StaffScheduleSlot[]> = {};
+      results.forEach(({ staffId, slots }) => {
+        schedulesMap[staffId] = slots;
+      });
+
+      // Check availability for each service
+      const startTime = bookingData.bookingTime;
+      const [startHours, startMins] = startTime.split(':').map(Number);
+      
+      for (const service of bookingData.selectedServices) {
+        // Calculate actual service time based on order
+        const offset = (service.order - 1) * 15;
+        const totalMins = startHours * 60 + startMins + offset;
+        const serviceHours = Math.floor(totalMins / 60);
+        const serviceMins = totalMins % 60;
+        const serviceTime = `${serviceHours.toString().padStart(2, '0')}:${serviceMins.toString().padStart(2, '0')}`;
+
+        // Get staff's booked slots
+        const staffBookedSlots = schedulesMap[service.staffId] || [];
+        
+        // Check if this time slot is booked
+        const isBooked = staffBookedSlots.some(slot => slot.startTime === serviceTime);
+
+        if (isBooked) {
+          // Found conflict - set error and stop
+          setValidationError({
+            staffName: service.staffName,
+            serviceName: service.serviceName,
+            conflictTime: serviceTime,
+            message: `${service.staffName} is not available at ${serviceTime} for ${service.serviceName}. This time slot has been booked by another customer.`
+          });
+          setIsValidating(false);
+          return;
+        }
+      }
+
+      // All slots are available
+      console.log('✅ All time slots are available');
+      setIsValidating(false);
+    } catch (err: any) {
+      console.error('Error validating booking availability:', err);
+      setValidationError({
+        staffName: 'Unknown',
+        serviceName: '',
+        conflictTime: '',
+        message: 'Failed to verify availability. Please try again or select a different time.'
+      });
+      setIsValidating(false);
+    }
+  };
 
   const createUserAccount = async (): Promise<number | null> => {
     try {
@@ -23,7 +116,6 @@ const StepConfirmation: React.FC<StepProps> = ({
       };
 
       console.log('Creating new user account:', registerPayload);
-      console.log(`NEW USER CREATED: Phone: ${bookingData.phoneNumber}, Name: ${bookingData.fullName}`);
 
       const response = await axios.post<ApiResponse<number>>(
         `${API_BASE_URL}/auth/register`,
@@ -32,7 +124,7 @@ const StepConfirmation: React.FC<StepProps> = ({
 
       if (response.data.code === 900) {
         const newCustomerId = response.data.data;
-        console.log('User account created successfully. Customer ID:', newCustomerId);
+        console.log('✅ User account created. Customer ID:', newCustomerId);
         return newCustomerId;
       } else {
         console.error('Failed to create user account:', response.data.message);
@@ -51,7 +143,7 @@ const StepConfirmation: React.FC<StepProps> = ({
       const dateTimeStr = `${bookingData.bookingDate}T${bookingData.bookingTime}:00`;
 
       const bookingPayload = {
-        customerId: customerId, // Sử dụng customerId được truyền vào
+        customerId: customerId,
         customerPhone: bookingData.phoneNumber,
         storeId: bookingData.storeId,
         startTime: dateTimeStr,
@@ -70,7 +162,7 @@ const StepConfirmation: React.FC<StepProps> = ({
       );
 
       if (response.data.code === 900) {
-        console.log('Booking created successfully:', response.data.data);
+        console.log('✅ Booking created successfully:', response.data.data);
         updateBookingData({ bookingId: response.data.data.id });
       } else {
         setError('Failed to create booking: ' + response.data.message);
@@ -108,12 +200,11 @@ const StepConfirmation: React.FC<StepProps> = ({
           return;
         }
         
-        // Cập nhật customerId mới vào bookingData
         customerId = newCustomerId;
         updateBookingData({ customerId: newCustomerId });
       }
 
-      // Step 2: Create booking với customerId đúng
+      // Step 2: Create booking with correct customerId
       if (customerId) {
         await createBooking(customerId);
       } else {
@@ -149,10 +240,7 @@ const StepConfirmation: React.FC<StepProps> = ({
 
   const formatTime = (): string => {
     if (!bookingData.bookingTime) return '';
-    const [hours, mins] = bookingData.bookingTime.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-    return `${displayHours}:${mins.toString().padStart(2, '0')} ${period}`;
+    return bookingData.bookingTime;
   };
 
   return (
@@ -162,10 +250,54 @@ const StepConfirmation: React.FC<StepProps> = ({
         <p className="subtitle">Please confirm all details are correct</p>
       </div>
 
-      {error && (
+      {/* Validation Error Banner - Shows conflict with staff */}
+      {validationError && (
+        <div className="validation-error-banner">
+          <div className="error-icon">
+            <i className="fas fa-exclamation-circle"></i>
+          </div>
+          <div className="error-content">
+            <h5>⚠️ Booking Conflict Detected</h5>
+            <p className="error-main">{validationError.message}</p>
+            <div className="conflict-details">
+              <div className="conflict-item">
+                <strong>Staff:</strong> {validationError.staffName}
+              </div>
+              {validationError.serviceName && (
+                <div className="conflict-item">
+                  <strong>Service:</strong> {validationError.serviceName}
+                </div>
+              )}
+              {validationError.conflictTime && (
+                <div className="conflict-item">
+                  <strong>Conflict Time:</strong> {validationError.conflictTime}
+                </div>
+              )}
+            </div>
+            <button 
+              className="change-time-btn"
+              onClick={prevStep}
+            >
+              <i className="fas fa-arrow-left"></i>
+              Change Date/Time
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Regular Error Banner */}
+      {error && !validationError && (
         <div className="error-banner">
           <i className="fas fa-exclamation-triangle"></i>
           <span>{error}</span>
+        </div>
+      )}
+
+      {/* Validating State */}
+      {isValidating && (
+        <div className="validating-banner">
+          <i className="fas fa-spinner fa-spin"></i>
+          <span>Verifying availability...</span>
         </div>
       )}
 
@@ -266,7 +398,7 @@ const StepConfirmation: React.FC<StepProps> = ({
           <li>Please arrive 5 minutes before your appointment</li>
           <li>You will receive an SMS confirmation shortly</li>
           {bookingData.isNewCustomer && (
-            <li className="highlight">A temporary password will be sent to your phone number</li>
+            <li className="highlight">Your account will be created automatically</li>
           )}
           <li>Cancellations must be made at least 24 hours in advance</li>
         </ul>
@@ -276,9 +408,9 @@ const StepConfirmation: React.FC<StepProps> = ({
       <div className="step-navigation">
         <button 
           type="button" 
-          className="wiondefault-btn outline-btn"
+          className="wiondefault-btn submit-btn"
           onClick={prevStep}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isValidating}
         >
           <span className="wionbutton-icon left">
             <img className="arry1" src="/assets/images/svg/arrow-left.png" alt="" />
@@ -291,16 +423,21 @@ const StepConfirmation: React.FC<StepProps> = ({
           type="button" 
           className="wiondefault-btn submit-btn"
           onClick={handleSubmit}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isValidating || validationError !== null}
         >
-          {isSubmitting ? (
+          {isValidating ? (
+            <>
+              <i className="fas fa-spinner fa-spin"></i>
+              Verifying...
+            </>
+          ) : isSubmitting ? (
             <>
               <i className="fas fa-spinner fa-spin"></i>
               Processing...
             </>
           ) : (
             <>
-              Confirm Booking
+              Confirm
               <span className="wionbutton-icon">
                 <img className="arry1" src="/assets/images/svg/arrow-right.png" alt="" />
                 <img className="arry2" src="/assets/images/svg/arrow-right.png" alt="" />
@@ -309,6 +446,22 @@ const StepConfirmation: React.FC<StepProps> = ({
           )}
         </button>
       </div>
+
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{ 
+          marginTop: '20px', 
+          padding: '10px', 
+          background: '#f0f0f0', 
+          borderRadius: '5px',
+          fontSize: '12px',
+          fontFamily: 'monospace'
+        }}>
+          <strong>Debug Info:</strong>
+          <div>isSubmitting: {String(isSubmitting)}</div>
+          <div>Back button disabled: {String(isSubmitting)}</div>
+          <div>Confirm button disabled: {String(isSubmitting)}</div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1567,7 +1567,7 @@ a.white-color {
 }
 @media (max-width: 767px) {
   .wioncontact-box {
-    padding: 30px;
+    padding: 0;
   }
 }
 .wioncontact-title h4 {
