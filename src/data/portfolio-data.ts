@@ -4,7 +4,7 @@ import portfolio_img_3 from "../../public/assets/images/portfolio/thumb3.png";
 import portfolio_img_4 from "../../public/assets/images/portfolio/thumb4.png";
 import portfolio_img_5 from "../../public/assets/images/portfolio/thumb5.png";
 import portfolio_img_6 from "../../public/assets/images/portfolio/thumb6.png";
-import portfolio_img_7 from "../../public/assets/images/portfolio/thumb7.png";
+import portfolio_img_7 from "../../public/assets/images/portfolio/thumb6.png";
  
 
 interface PortfolioItem {
@@ -25,16 +25,16 @@ const portfolio_data: PortfolioItem[] = [
   {
     id: 1,
     img: portfolio_img_1,
-    category: "App Design, UI/UX",
+    category: "Basic pedicure",
     date: `12 June ${year}`,
-    title: "Lunora",
+    title: "Tracy",
     dataAosDelay: 200,
     cls: "",
   },
   {
     id: 2,
     img: portfolio_img_3,
-    category: "Creative Design, Branding",
+    category: "Dipping Powder, Fill-Ins",
     date: `10 June ${year}`,
     title: "VoltEdge",
     dataAosDelay: 400,
@@ -43,7 +43,7 @@ const portfolio_data: PortfolioItem[] = [
   {
     id: 3,
     img: portfolio_img_5,
-    category: "Product Design, UX Research",
+    category: "Artificial Nails Removal",
     date: `03 June ${year}`,
     title: "Nomio",
     dataAosDelay: 600,
@@ -52,7 +52,7 @@ const portfolio_data: PortfolioItem[] = [
   {
     id: 4,
     img: portfolio_img_2,
-    category: "Branding, Content Creation",
+    category: "Artificial Nails Repair",
     date: `28 May ${year}`,
     title: "Haus&Co",
     dataAosDelay: 300,
@@ -61,7 +61,7 @@ const portfolio_data: PortfolioItem[] = [
   {
     id: 5,
     img: portfolio_img_4,
-    category: "UI/UX, SaaS Dashboard Design",
+    category: "Nails Design",
     date: `25 May ${year}`,
     title: "ZentraPay",
     dataAosDelay: 500,
@@ -70,7 +70,7 @@ const portfolio_data: PortfolioItem[] = [
   {
     id: 6,
     img: portfolio_img_6,
-    category: "Logo Design, Visual Identity",
+    category: "Full set Pink and White",
     date: `22 May ${year}`,
     title: "Bravure",
     dataAosDelay: 700,

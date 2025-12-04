@@ -6,11 +6,10 @@ import { Link } from "react-router-dom";
 import { useHoverReveal } from "../../../hooks/useHoverReveal";
 
 const services = [
-  { title: "Branding & Identity", img: "/assets/images/service/thumb1.png" },
-  { title: "UI/UX Design", img: "/assets/images/service/thumb2.png" },
-  { title: "Web Development", img: "/assets/images/service/thumb3.png" },
-  { title: "Digital Marketing", img: "/assets/images/service/thumb4.png" },
-  { title: "Content Creation", img: "/assets/images/service/thumb5.png" },
+  { title: "PEDICURE   ", img: "/assets/images/service/thumb14.jpg" },
+  { title: "NAILS", img: "/assets/images/service/thumb15.jpg" },
+  { title: "MISCELLANEOUS SERVICES", img: "/assets/images/service/thumb16.jpg" },
+  { title: "WAXING", img: "/assets/images/service/thumb17.jpg" },
 ];
 
 function ServiceItem({ title, img }: { title: string; img: string }) {
@@ -62,10 +61,10 @@ const ServiceAreaHomeOne = () => {
                 <p>What we do for you</p>
               </div>
               <h2 className="aos-init" data-aos-delay="500" data-aos="fade-up">
-                Our services
+                Our categories of services
               </h2>
               <p className="aos-init" data-aos-delay="600" data-aos="fade-up">
-                We blend creativity and strategy to deliver our services to meet the needs of our clients.
+                We blend creativity and strategy to deliver our services to meet the needs of our customer.
               </p>
             </div>
           </div>

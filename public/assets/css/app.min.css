@@ -1710,7 +1710,7 @@ a.white-color {
     padding: 30px;
     margin: 0 15px;
     border-radius: 10px;
-    background-color: var(--white-bg)
+    /* background-color: var(--white-bg) */
 }
 
 .wiont-author-wrap {

@@ -16,8 +16,8 @@ export default function HomeOne() {
     <ServiceAreaHomeOne />,
     <PortfolioAreaHomeOne />,
     <TestimonialArea />,
-    <TeamAreaHomeOne />,
-    <BlogAreaHomeOne />,
+    // <TeamAreaHomeOne />,
+    // <BlogAreaHomeOne />,
   ];
 
   return <Wrapper><HomeLayout header={<HeaderOne />} footer={<FooterOne />} sections={sections} /></Wrapper>;

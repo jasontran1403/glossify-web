@@ -19,28 +19,28 @@ const PortfolioAreaHomeOne = () => {
             {portfolio_data.slice(0, 3).map((item, i) => (
               <div key={i} className={`wionp-wrap aos-init ${item.cls}`} data-aos-delay={item.dataAosDelay} data-aos="fade-up">
                 <div className="wionp-thumb">
-                  <Link to="/single-portfolio">
+                  <Link to="#">
                     <img src={item.img} alt={item.title} />
                   </Link>
                 </div>
                 <div className="wionp-meta">
                   <ul>
                     <li>
-                      <Link to="/single-portfolio">{item.category}</Link>
+                      <Link to="#">{item.category}</Link>
                     </li>
                     <li>
-                      <Link to="/single-portfolio">{item.date}</Link>
+                      <Link to="#">{item.date}</Link>
                     </li>
                   </ul>
                 </div>
                 <div className="wionp-content-wrap">
                   <div className="wionp-title">
-                    <Link to="/single-portfolio">
+                    <Link to="#">
                       <h3>{item.title}</h3>
                     </Link>
                   </div>
                   <div className="wionp-btn-icon">
-                    <Link className="wionportfolio-btn" to="/single-portfolio">
+                    <Link className="wionportfolio-btn" to="#">
                       <i className="ri-arrow-right-up-line"></i>
                     </Link>
                   </div>
@@ -54,28 +54,28 @@ const PortfolioAreaHomeOne = () => {
             {portfolio_data.slice(3, 6).map((item, i) => (
               <div key={i} className={`wionp-wrap ${item.cls}`} data-aos-delay={item.dataAosDelay} data-aos="fade-up">
                 <div className="wionp-thumb">
-                  <Link to="/single-portfolio">
+                  <Link to="#">
                     <img src={item.img} alt={item.title} />
                   </Link>
                 </div>
                 <div className="wionp-meta">
                   <ul>
                     <li>
-                      <Link to="/single-portfolio">{item.category}</Link>
+                      <Link to="#">{item.category}</Link>
                     </li>
                     <li>
-                      <Link to="/single-portfolio">{item.date}</Link>
+                      <Link to="#">{item.date}</Link>
                     </li>
                   </ul>
                 </div>
                 <div className="wionp-content-wrap">
                   <div className="wionp-title">
-                    <Link to="/single-portfolio">
+                    <Link to="#">
                       <h3>{item.title}</h3>
                     </Link>
                   </div>
                   <div className="wionp-btn-icon">
-                    <Link className="wionportfolio-btn" to="/single-portfolio">
+                    <Link className="wionportfolio-btn" to="#">
                       <i className="ri-arrow-right-up-line"></i>
                     </Link>
                   </div>
@@ -85,14 +85,14 @@ const PortfolioAreaHomeOne = () => {
           </div>
 
         </div>
-        <div className="wionp-btn wow">
+        {/* <div className="wionp-btn wow">
           <Link className="wiondefault-btn" to="/portfolio-1">View full projects
             <span className="wionbutton-icon">
               <img className="arry1" src={arrow_right} alt="" />
               <img className="arry2" src={arrow_right} alt="" />
             </span>
           </Link>
-        </div>
+        </div> */}
       </div>
     </div>
   );

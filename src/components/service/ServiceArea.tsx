@@ -1,7 +1,4 @@
-
-
 import { Link } from 'react-router-dom';
- 
 
 export default function ServiceArea() {
   return (
@@ -17,36 +14,43 @@ export default function ServiceArea() {
           <div className="row">
             <div className="col-lg-6">
               <div className="wionservice-d-thumb">
-                <img src="assets/images/service/thumb6.png" alt="" />
+                <img src="assets/images/service/thumb14.jpg" alt="" />
               </div>
             </div>
             <div className="col-lg-6 d-flex align-items-center">
               <div className="wiondefault-content pl-110">
-                <h3 className="title">01. Branding & Identity</h3>
-                <p>We create more than just logos, build complete visual identities that reflect your brand’s voice, values, and vision.</p>
+                <h3 className="title">01. Pedicure</h3>
+                <p>We use personal one-time pedicure kits which include pumice stone, nail buffer, and nail file for all of our pedicure services. We offer complimentary drinks. Please kindly ask us if we forgot to offer you one..</p>
                 <div className="mt-50">
                   <div className="wionservice-d-data">
-                    <ul>
-                      <li>
-                        <h4>Logo design & brandmarks</h4>
+                    <ul className="service-prices-list">
+                      <li className="service-price-item">
+                        <span className="service-name">Basic Pedicure</span>
+                        <span className="service-price">$33</span>
                       </li>
-                      <li>
-                        <h4>Visual identity systems</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">Deluxe Spa Pedicure</span>
+                        <span className="service-price">$38</span>
                       </li>
-                      <li>
-                        <h4>Tone of voice & messaging</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">Herbal Deluxe Pedicure</span>
+                        <span className="service-price">$48</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">Signature Volcano Spa Pedicure</span>
+                        <span className="service-price">$58</span>
                       </li>
                     </ul>
                   </div>
                 </div>
-                <div className="mt-50">
+                {/* <div className="mt-50">
                   <Link className="wiondefault-btn" to="/single-service">Explore more
                     <span className="wionbutton-icon">
                       <img className="arry1" src="assets/images/svg/arrow-right.png" alt="" />
                       <img className="arry2" src="assets/images/svg/arrow-right.png" alt="" />
                     </span>
                   </Link>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -55,36 +59,59 @@ export default function ServiceArea() {
           <div className="row">
             <div className="col-lg-6 order-lg-2">
               <div className="wionservice-d-thumb">
-                <img src="assets/images/service/thumb7.png" alt="" />
+                <img src="assets/images/service/thumb15.jpg" alt="" />
               </div>
             </div>
             <div className="col-lg-6 d-flex align-items-center">
               <div className="wiondefault-content pr-110">
-                <h3 className="title">2. UI/UX Design</h3>
-                <p>We design intuitive, engaging, and conversion-focused digital experiences. Whether it’s a app or a complex web.</p>
+                <h3 className="title">2. Nails</h3>
+                <p>NOTE: Please consult one of our nail techs if you have any questions about additional service requests.</p>
                 <div className="mt-50">
                   <div className="wionservice-d-data">
-                    <ul>
-                      <li>
-                        <h4>User journey mapping</h4>
+                    <ul className="service-prices-list">
+                      <li className="service-price-item">
+                        <span className="service-name">Basic Manicure</span>
+                        <span className="service-price">$28</span>
                       </li>
-                      <li>
-                        <h4>Wireframes, prototyping & UI</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">No-Chip Manicure</span>
+                        <span className="service-price">$38</span>
                       </li>
-                      <li>
-                        <h4>Interaction & accessibility design</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">Full Set (artificial nails)</span>
+                        <span className="service-price">$48+</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">Fill-Ins</span>
+                        <span className="service-price">$38+</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">Dipping Powder</span>
+                        <span className="service-price">$48</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">Kid’s Pedicure</span>
+                        <span className="service-price">$28</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">Basic Manicure & Pedicure</span>
+                        <span className="service-price">$58</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">Full set Pink and White</span>
+                        <span className="service-price">$68</span>
                       </li>
                     </ul>
                   </div>
                 </div>
-                <div className="mt-50">
+                {/* <div className="mt-50">
                   <Link className="wiondefault-btn" to="/single-service">Explore more
                     <span className="wionbutton-icon">
                       <img className="arry1" src="assets/images/svg/arrow-right.png" alt="" />
                       <img className="arry2" src="assets/images/svg/arrow-right.png" alt="" />
                     </span>
                   </Link>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -93,36 +120,59 @@ export default function ServiceArea() {
           <div className="row">
             <div className="col-lg-6">
               <div className="wionservice-d-thumb">
-                <img src="assets/images/service/thumb8.png" alt="" />
+                <img src="assets/images/service/thumb16.jpg" alt="" />
               </div>
             </div>
             <div className="col-lg-6 d-flex align-items-center">
               <div className="wiondefault-content pl-110">
-                <h3 className="title">3. Web Development</h3>
-                <p>We build fast, functional and responsive websites. Whether it’s Webflow, custom code, or CMS-based.</p>
+                <h3 className="title">3. Miscellaneous Services</h3>
+                <p></p>
                 <div className="mt-50">
                   <div className="wionservice-d-data">
-                    <ul>
-                      <li>
-                        <h4>Custom website development</h4>
+                    <ul className="service-prices-list">
+                      <li className="service-price-item">
+                        <span className="service-name">No-Chip Polish</span>
+                        <span className="service-price">$28</span>
                       </li>
-                      <li>
-                        <h4>Webflow & CMS builds</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">Artificial Nails Removal</span>
+                        <span className="service-price">$18</span>
                       </li>
-                      <li>
-                        <h4>Frontend & backend integration</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">No-Chip Polish Soak Off</span>
+                        <span className="service-price">$13</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">Artificial Nails Repair</span>
+                        <span className="service-price">$8+</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">Cut Down</span>
+                        <span className="service-price">$8+</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">Regular Polish Change</span>
+                        <span className="service-price">$18</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">Nails Design</span>
+                        <span className="service-price">$8+</span>
+                      </li>
+                      <li className="service-price-item">
+                        <span className="service-name">French</span>
+                        <span className="service-price">$8+</span>
                       </li>
                     </ul>
                   </div>
                 </div>
-                <div className="mt-50">
+                {/* <div className="mt-50">
                   <Link className="wiondefault-btn" to="/single-service">Explore more
                     <span className="wionbutton-icon">
                       <img className="arry1" src="assets/images/svg/arrow-right.png" alt="" />
                       <img className="arry2" src="assets/images/svg/arrow-right.png" alt="" />
                     </span>
                   </Link>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -131,62 +181,39 @@ export default function ServiceArea() {
           <div className="row">
             <div className="col-lg-6 order-lg-2">
               <div className="wionservice-d-thumb">
-                <img src="assets/images/service/thumb9.png" alt="" />
+                <img src="assets/images/service/thumb17.jpg" alt="" />
               </div>
             </div>
             <div className="col-lg-6 d-flex align-items-center">
               <div className="wiondefault-content pr-110">
-                <h3 className="title">4. Digital Marketing</h3>
-                <p>We help you get seen & get results. We focus on measurable growth through SEO, social media, and email marketing.</p>
+                <h3 className="title">4. Waxing</h3>
+                <p></p>
                 <div className="mt-50">
                   <div className="wionservice-d-data">
-                    <ul>
-                      <li>
-                        <h4>SEO strategy & optimization</h4>
+                    <ul className="service-prices-list">
+                      <li className="service-price-item">
+                        <span className="service-name">Eyebrows</span>
+                        <span className="service-price">$13</span>
                       </li>
-                      <li>
-                        <h4>Paid media campaigns</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">Lip</span>
+                        <span className="service-price">$11+</span>
                       </li>
-                      <li>
-                        <h4>Email marketing flows</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">Under Arms</span>
+                        <span className="service-price">$23+</span>
                       </li>
-                    </ul>
-                  </div>
-                </div>
-                <div className="mt-50">
-                  <Link className="wiondefault-btn" to="/single-service">Explore more
-                    <span className="wionbutton-icon">
-                      <img className="arry1" src="assets/images/svg/arrow-right.png" alt="" />
-                      <img className="arry2" src="assets/images/svg/arrow-right.png" alt="" />
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="wionservice-main-box card-sticky mt-80">
-          <div className="row">
-            <div className="col-lg-6">
-              <div className="wionservice-d-thumb">
-                <img src="assets/images/service/thumb10.png" alt="" />
-              </div>
-            </div>
-            <div className="col-lg-6 d-flex align-items-center">
-              <div className="wiondefault-content pl-110">
-                <h3 className="title">5. Content Creation</h3>
-                <p>Words, visuals, and motion, we create content that captures attention and drives engagement. </p>
-                <div className="mt-50">
-                  <div className="wionservice-d-data">
-                    <ul>
-                      <li>
-                        <h4>Website & brand copywriting</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">Full Face</span>
+                        <span className="service-price">$38+</span>
                       </li>
-                      <li>
-                        <h4>Brand & explainer videos</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">Cheeks</span>
+                        <span className="service-price">$13</span>
                       </li>
-                      <li>
-                        <h4>Motion graphics & animation</h4>
+                      <li className="service-price-item">
+                        <span className="service-name">Chin</span>
+                        <span className="service-price">$13+</span>
                       </li>
                     </ul>
                   </div>

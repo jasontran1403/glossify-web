@@ -23,7 +23,7 @@ export default function PortfolioOneArea() {
               <div className="wionp-meta">
                 <ul>
                   <li>
-                    <Link to="/single-portfolio">App Design, UI/UX</Link>
+                    <Link to="/single-portfolio">Full Set (artificial nails)</Link>
                   </li>
                   <li>
                     <Link to="/single-portfolio">12 June 2024</Link>
@@ -52,7 +52,7 @@ export default function PortfolioOneArea() {
               <div className="wionp-meta">
                 <ul>
                   <li>
-                    <Link to="/single-portfolio">Product Design, UX Research</Link>
+                    <Link to="/single-portfolio">Fill-Ins</Link>
                   </li>
                   <li>
                     <Link to="/single-portfolio">03 June 2024</Link>
@@ -81,7 +81,7 @@ export default function PortfolioOneArea() {
               <div className="wionp-meta">
                 <ul>
                   <li>
-                    <Link to="/single-portfolio">UI/UX, SaaS Dashboard Design</Link>
+                    <Link to="/single-portfolio">Basic Manicure & Pedicure Combo</Link>
                   </li>
                   <li>
                     <Link to="/single-portfolio">25 May 2024</Link>
@@ -92,35 +92,6 @@ export default function PortfolioOneArea() {
                 <div className="wionp-title">
                   <Link to="/single-portfolio">
                     <h3>ZentraPay</h3>
-                  </Link>
-                </div>
-                <div className="wionp-btn-icon">
-                  <Link className="wionportfolio-btn" to="/single-portfolio">
-                    <i className="ri-arrow-right-up-line"></i>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="wionp-wrap wrap2 wrap3 aos-init" data-aos-delay="700" data-aos="fade-up">
-              <div className="wionp-thumb">
-                <Link to="/single-portfolio">
-                  <img src="assets/images/portfolio/thumb8.png" alt="" />
-                </Link>
-              </div>
-              <div className="wionp-meta">
-                <ul>
-                  <li>
-                    <Link to="/single-portfolio">UI/UX, Interaction Design</Link>
-                  </li>
-                  <li>
-                    <Link to="/single-portfolio">23 April 2024</Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="wionp-content-wrap">
-                <div className="wionp-title">
-                  <Link to="/single-portfolio">
-                    <h3>EchoView</h3>
                   </Link>
                 </div>
                 <div className="wionp-btn-icon">
@@ -141,7 +112,7 @@ export default function PortfolioOneArea() {
               <div className="wionp-meta">
                 <ul>
                   <li>
-                    <Link to="/single-portfolio">Creative Design, Branding</Link>
+                    <Link to="/single-portfolio">Nails Design</Link>
                   </li>
                   <li>
                     <Link to="/single-portfolio">10 June 2024</Link>
@@ -199,7 +170,7 @@ export default function PortfolioOneArea() {
               <div className="wionp-meta">
                 <ul>
                   <li>
-                    <Link to="/single-portfolio">Logo Design, Visual Identity</Link>
+                    <Link to="/single-portfolio">Artificial Nails Removal</Link>
                   </li>
                   <li>
                     <Link to="/single-portfolio">22 May 2024</Link>
@@ -210,35 +181,6 @@ export default function PortfolioOneArea() {
                 <div className="wionp-title">
                   <Link to="/single-portfolio">
                     <h3>Bravure</h3>
-                  </Link>
-                </div>
-                <div className="wionp-btn-icon">
-                  <Link className="wionportfolio-btn" to="/single-portfolio">
-                    <i className="ri-arrow-right-up-line"></i>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="wionp-wrap wrap2 aos-init" data-aos-delay="800" data-aos="fade-up">
-              <div className="wionp-thumb">
-                <Link to="/single-portfolio">
-                  <img src="assets/images/portfolio/thumb9.png" alt="" />
-                </Link>
-              </div>
-              <div className="wionp-meta">
-                <ul>
-                  <li>
-                    <Link to="/single-portfolio">Packaging Design, Branding</Link>
-                  </li>
-                  <li>
-                    <Link to="/single-portfolio">19 April 2024</Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="wionp-content-wrap">
-                <div className="wionp-title">
-                  <Link to="/single-portfolio">
-                    <h3>Cravory</h3>
                   </Link>
                 </div>
                 <div className="wionp-btn-icon">

@@ -80,3 +80,36 @@
     overflow: visible;
   }
 }
+
+.service-prices-list {
+  display: flex;
+  flex-direction: column;
+  list-style: none; /* Tùy chọn: loại bỏ dấu đầu dòng nếu cần */
+  padding: 0;
+  margin: 0;
+  height: 100%; /* Chiếm full height của container cha nếu cần */
+}
+
+.service-price-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Căn giữa theo chiều dọc trong li */
+  padding: 8px 0; /* Khoảng cách dọc giữa các item */
+  border-bottom: 1px solid #eee; /* Tùy chọn: đường phân cách */
+}
+
+.service-price-item:last-child {
+  border-bottom: none; /* Không có đường dưới cho item cuối */
+}
+
+.service-name {
+  flex: 1; /* Chiếm không gian còn lại bên trái */
+  font-weight: 500; /* Giữ độ đậm tương tự h4 */
+}
+
+.service-price {
+  font-weight: bold; /* Làm nổi bật giá */
+  text-align: right;
+  min-width: 60px; /* Đảm bảo giá không bị ép sát */
+}
+
