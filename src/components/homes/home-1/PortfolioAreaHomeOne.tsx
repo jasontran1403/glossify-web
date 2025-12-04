@@ -1,7 +1,6 @@
 
  
 import { Link } from 'react-router-dom'; 
-import arrow_right from "../../../../public/assets/images/svg/arrow-right.png"; 
 import portfolio_data from '../../../data/portfolio-data';
 
 const PortfolioAreaHomeOne = () => {

@@ -4,8 +4,6 @@ import FooterOne from '../../../layouts/footers/FooterOne';
 import HeroAreaHomeOne from './HeroAreaHomeOne';
 import ServiceAreaHomeOne from './ServiceAreaHomeOne';
 import PortfolioAreaHomeOne from './PortfolioAreaHomeOne';
-import TeamAreaHomeOne from './TeamAreaHomeOne';
-import BlogAreaHomeOne from './BlogAreaHomeOne';
 import TestimonialArea from './TestimonialArea';
 import HomeLayout from '../HomeLayout';
 import Wrapper from '../../../layouts/Wrapper';
