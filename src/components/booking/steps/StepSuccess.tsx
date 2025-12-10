@@ -12,6 +12,9 @@ const StepSuccess: React.FC<StepSuccessProps> = ({ bookingData, onNewBooking }) 
   };
 
   const getTotalDuration = (): number => {
+    bookingData.selectedServices.forEach(service => {
+      console.log(service);
+    });
     return bookingData.selectedServices.length * 15;
   };
 

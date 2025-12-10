@@ -26,7 +26,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
 
   useEffect(() => {
     if (selectedDate) {
-      console.log('📅 Date changed to:', getLocalDateString(selectedDate));
       setSelectedTime('');
       updateBookingData({ bookingTime: '' });
       fetchSchedulesForAllStaff();
@@ -57,9 +56,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
     setLoadingSchedules(true);
     const dateStr = getLocalDateString(selectedDate);
 
-    console.log('🔍 Fetching schedules for date:', dateStr);
-    console.log('👥 Staff IDs:', [...new Set(bookingData.selectedServices.map(s => s.staffId))]);
-
     try {
       const staffIds = [...new Set(bookingData.selectedServices.map(s => s.staffId))];
 
@@ -68,8 +64,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
           `${API_BASE_URL}/user/schedule/${staffId}`,
           { params: { date: dateStr } }
         );
-
-        console.log(`📥 Staff ${staffId} schedule response:`, response.data);
 
         if (response.data.code === 900) {
           return { staffId, slots: response.data.data || [] };
@@ -82,25 +76,11 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
       const schedulesMap: Record<number, StaffScheduleSlot[]> = {};
       results.forEach(({ staffId, slots }) => {
         schedulesMap[staffId] = slots;
-        console.log(`🗓️ Staff ${staffId} has ${slots.length} bookings`);
-        
-        // ⭐ Log staffTimeSlots info
-        slots.forEach((slot, index) => {
-          if (slot.staffTimeSlots && slot.staffTimeSlots.length > 0) {
-            console.log(`   ✅ Booking ${index + 1}: Using staffTimeSlots (${slot.staffTimeSlots.length} slots)`);
-            slot.staffTimeSlots.forEach(ts => {
-              console.log(`      - ${ts.startTime} to ${ts.endTime} (${ts.serviceName})`);
-            });
-          } else {
-            console.log(`   ⚠️ Booking ${index + 1}: Fallback to old logic (${slot.startTime} - ${slot.endTime})`);
-          }
-        });
       });
 
       setSchedules(schedulesMap);
       calculateAvailableSlots(schedulesMap);
     } catch (error) {
-      console.error('❌ Error fetching schedules:', error);
       alert('Failed to load schedules');
     } finally {
       setLoadingSchedules(false);
@@ -108,18 +88,7 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
   };
 
   const calculateAvailableSlots = (schedulesMap: Record<number, StaffScheduleSlot[]>): void => {
-    console.log('\n🧮 ═══════════════════════════════════════════════════');
-    console.log('   CALCULATING AVAILABLE TIME SLOTS');
-    console.log('   ═══════════════════════════════════════════════════');
-    console.log(`   📅 Date: ${getLocalDateString(selectedDate!)}`);
-    console.log(`   👥 Services: ${bookingData.selectedServices.length}`);
-    bookingData.selectedServices.forEach((s, i) => {
-      console.log(`      ${i + 1}. ${s.serviceName} (${s.staffName}, Order: ${s.order})`);
-    });
-    console.log('   ═══════════════════════════════════════════════════\n');
-
     const slots: TimeSlot[] = [];
-    const blockedSlots: string[] = [];
     const start = 9 * 60;  // 9:00 AM
     const end = 17 * 60;   // 5:00 PM
 
@@ -135,78 +104,46 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
         display: formatTimeDisplay(hours, mins),
         available: isAvailable,
       });
-
-      if (!isAvailable) {
-        blockedSlots.push(timeStr);
-      }
     }
-
-    const availableCount = slots.filter(s => s.available).length;
-    const totalCount = slots.length;
-    
-    console.log('\n📊 ═══════════════════════════════════════════════════');
-    console.log('   AVAILABILITY SUMMARY');
-    console.log('   ═══════════════════════════════════════════════════');
-    console.log(`   ✅ Available slots: ${availableCount} / ${totalCount}`);
-    console.log(`   ❌ Blocked slots: ${blockedSlots.length}`);
-    
-    if (blockedSlots.length > 0 && blockedSlots.length <= 5) {
-      console.log('\n   Blocked times:');
-      blockedSlots.forEach(time => {
-        console.log(`      • ${time}`);
-      });
-    } else if (blockedSlots.length > 5) {
-      console.log(`\n   First 5 blocked times:`);
-      blockedSlots.slice(0, 5).forEach(time => {
-        console.log(`      • ${time}`);
-      });
-      console.log(`      ... and ${blockedSlots.length - 5} more`);
-    }
-    
-    console.log('   ═══════════════════════════════════════════════════\n');
 
     setAvailableSlots(slots);
   };
 
   /**
-   * ✅ UPDATED: Check if a time slot is available for booking
+   * ✅ FIXED: Check if a time slot is available for booking
    * 
-   * Uses interval overlap check on staffTimeSlots with >= to disallow touching boundaries
-   * for backward compatibility, fallback to old startTime/endTime
+   * Uses TRUE overlap check (>) to ALLOW touching boundaries:
+   * - newEnd can equal existingStart (no overlap)
+   * - newEnd > existingStart means TRUE overlap
+   * 
+   * Example:
+   * - Booking: 09:30 - 10:46
+   * - Slot 09:15 with 15min service: 09:15 - 09:30
+   *   → newEnd (09:30) > existingStart (09:30)? NO → AVAILABLE ✅
+   * - Slot 09:30 with 15min service: 09:30 - 09:45
+   *   → newEnd (09:45) > existingStart (09:30)? YES → NOT AVAILABLE ❌
    */
   const checkSlotAvailability = (startTime: string, schedulesMap: Record<number, StaffScheduleSlot[]>): boolean => {
     const { selectedServices } = bookingData;
 
-    // Only log for slots that might be problematic (reduce console spam)
-    const shouldLog = startTime === '14:45' || startTime === '15:00' || startTime === '15:15' || startTime === '14:30';
-    
-    if (shouldLog) {
-      console.log(`\n🔍 Checking availability for startTime: ${startTime}`);
-    }
-
     for (let i = 0; i < selectedServices.length; i++) {
       const service = selectedServices[i];
 
-      // Calculate actual service time based on order
-      const offset = (service.order - 1) * 15;
+      // Calculate service time based on actual duration
+      const serviceDuration = service.time || 15; // Use actual service time
+      const offset = selectedServices
+        .slice(0, i)
+        .reduce((sum, s) => sum + (s.time || 15), 0);
+
       const [hours, mins] = startTime.split(':').map(Number);
       const totalMins = hours * 60 + mins + offset;
       const serviceStartTime = minutesToTime(totalMins);
       const serviceStartMinutes = timeToMinutes(serviceStartTime);
-      const serviceEndMinutes = serviceStartMinutes + 15; // Each service is 15 min
-
-      if (shouldLog) {
-        console.log(`  📌 Service ${service.order}: ${service.serviceName} (${service.staffName})`);
-        console.log(`     → Will work at: ${serviceStartTime} - ${minutesToTime(serviceEndMinutes)} (offset: ${offset} mins)`);
-      }
+      const serviceEndMinutes = serviceStartMinutes + serviceDuration;
 
       // Get staff's booked schedules
       const staffSchedules = schedulesMap[service.staffId] || [];
       
-      if (shouldLog) {
-        console.log(`     → ${service.staffName} has ${staffSchedules.length} existing booking(s)`);
-      }
-
       // Collect all existing intervals for this staff
       const allExistingIntervals = staffSchedules.flatMap(schedule => {
         if (schedule.staffTimeSlots && schedule.staffTimeSlots.length > 0) {
@@ -217,39 +154,23 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
         }
       });
 
-      // Check for overlap with any existing interval (disallow touching: >= )
+      // ✅ FIXED: Check for TRUE overlap (use > not >=)
+      // Allow touching: newEnd can equal existingStart
       const hasConflict = allExistingIntervals.some(existingSlot => {
         const e_start = timeToMinutes(existingSlot.startTime);
         const e_end = timeToMinutes(existingSlot.endTime);
 
-        // Overlap if serviceEnd >= e_start && e_end >= serviceStart (disallow boundary touching)
-        const overlaps = serviceEndMinutes >= e_start && e_end >= serviceStartMinutes;
-        if (shouldLog && overlaps) {
-          console.log(`       ⚠️ Overlap with existing: ${existingSlot.serviceName || 'Booking'} at ${existingSlot.startTime}-${existingSlot.endTime}`);
-        }
+        // TRUE overlap: newEnd > existingStart AND existingEnd > newStart
+        const overlaps = serviceEndMinutes > e_start && e_end > serviceStartMinutes;
+
         return overlaps;
       });
 
       if (hasConflict) {
-        console.log(`\n⚠️ ═══════════════════════════════════════════════════`);
-        console.log(`   BOOKING CONFLICT DETECTED!`);
-        console.log(`   ─────────────────────────────────────────────────`);
-        console.log(`   ❌ Cannot book starting at ${startTime}`);
-        console.log(`   📍 Reason: ${service.staffName} has overlapping schedule`);
-        console.log(`   ⏰ Conflict interval: ${serviceStartTime}-${minutesToTime(serviceEndMinutes)}`);
-        console.log(`   👤 Staff: ${service.staffName} (ID: ${service.staffId})`);
-        console.log(`   🔧 Service: ${service.serviceName} (Order: ${service.order})`);
-        console.log(`   💡 Suggestion: Choose a different time or staff`);
-        console.log(`   ═══════════════════════════════════════════════════\n`);
-        
         return false;
       }
     }
 
-    if (shouldLog) {
-      console.log(`   ✅ All staff available - Slot ${startTime} is bookable\n`);
-    }
-    
     return true;
   };
 
@@ -258,7 +179,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
   };
 
   const handleTimeSelect = (time: string) => {
-    console.log('⏰ Time selected:', time);
     setSelectedTime(time);
     updateBookingData({
       bookingDate: getLocalDateString(selectedDate!),
@@ -275,13 +195,6 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
       alert('Please select a time');
       return;
     }
-
-    console.log('\n🔍 ═══════════════════════════════════════════════════');
-    console.log('   VALIDATING BEFORE CONTINUE');
-    console.log('   ═══════════════════════════════════════════════════');
-    console.log(`   📅 Date: ${getLocalDateString(selectedDate)}`);
-    console.log(`   ⏰ Time: ${selectedTime}`);
-    console.log('   👥 Services: ', bookingData.selectedServices);
 
     setIsValidatingContinue(true);
 
@@ -303,15 +216,22 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
         schedulesMap[staffId] = slots;
       });
 
-      // Validate each service with overlap check
+      // Validate each service with TRUE overlap check
       const [startHours, startMins] = selectedTime.split(':').map(Number);
 
-      for (const service of bookingData.selectedServices) {
-        const offset = (service.order - 1) * 15;
+      for (let i = 0; i < bookingData.selectedServices.length; i++) {
+        const service = bookingData.selectedServices[i];
+        
+        // Calculate service time based on actual duration
+        const serviceDuration = service.time || 15;
+        const offset = bookingData.selectedServices
+          .slice(0, i)
+          .reduce((sum, s) => sum + (s.time || 15), 0);
+
         const totalMins = startHours * 60 + startMins + offset;
         const serviceStartTime = minutesToTime(totalMins);
         const serviceStartMinutes = timeToMinutes(serviceStartTime);
-        const serviceEndMinutes = serviceStartMinutes + 15;
+        const serviceEndMinutes = serviceStartMinutes + serviceDuration;
 
         const staffSchedules = schedulesMap[service.staffId] || [];
 
@@ -324,24 +244,15 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
           }
         });
 
+        // ✅ FIXED: Use TRUE overlap check (> not >=)
         const hasConflict = allExistingIntervals.some(existingSlot => {
           const e_start = timeToMinutes(existingSlot.startTime);
           const e_end = timeToMinutes(existingSlot.endTime);
-          // Overlap if serviceEnd >= e_start && e_end >= serviceStart (disallow touching)
-          return serviceEndMinutes >= e_start && e_end >= serviceStartMinutes;
+          // TRUE overlap: newEnd > existingStart AND existingEnd > newStart
+          return serviceEndMinutes > e_start && e_end > serviceStartMinutes;
         });
 
         if (hasConflict) {
-          console.log('   ⚠️ ═══════════════════════════════════════════════════');
-          console.log('      CONFLICT DETECTED!');
-          console.log('      ─────────────────────────────────────────────────');
-          console.log(`      ❌ Cannot continue`);
-          console.log(`      📍 ${service.staffName} has overlapping schedule at ${serviceStartTime}-${minutesToTime(serviceEndMinutes)}`);
-          console.log(`      🔧 Service: ${service.serviceName} (Order: ${service.order})`);
-          console.log('      💡 This slot was just booked by another customer');
-          console.log('      💡 Please select a different time');
-          console.log('   ═══════════════════════════════════════════════════\n');
-
           alert(`Sorry, ${service.staffName} is no longer available during ${serviceStartTime}-${minutesToTime(serviceEndMinutes)}.\n\nThis time overlaps with an existing booking.\n\nPlease select a different time.`);
           
           setIsValidatingContinue(false);
@@ -351,16 +262,12 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
         }
       }
 
-      console.log('   ✅ All slots still available - Proceeding to confirmation');
-      console.log('   ═══════════════════════════════════════════════════\n');
-
       // All good, proceed to next step
       const finalDateStr = getLocalDateString(selectedDate);
       updateBookingData({ bookingDate: finalDateStr });
       nextStep();
 
     } catch (error) {
-      console.error('❌ Error validating availability:', error);
       alert('Failed to verify availability. Please try again.');
       setIsValidatingContinue(false);
     }
@@ -382,6 +289,11 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
   minDate.setHours(0, 0, 0, 0);
   const maxDate = new Date();
   maxDate.setMonth(maxDate.getMonth() + 2);
+
+  // ✅ Calculate actual total duration from selected services
+  const totalDuration = bookingData.selectedServices.reduce((sum, service) => {
+    return sum + (service.time || 15);
+  }, 0);
 
   const renderCustomHeader = ({
     date,
@@ -545,7 +457,8 @@ const StepDateTime: React.FC<StepProps> = ({ bookingData, updateBookingData, nex
               {' at '}
               {selectedTime}
             </p>
-            <small>Duration: {bookingData.selectedServices.length * 15} minutes</small>
+            {/* ✅ FIXED: Show actual total duration */}
+            <small>Duration: {totalDuration} minutes</small>
           </div>
         </div>
       )}

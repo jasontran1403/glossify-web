@@ -9,7 +9,7 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [services, setServices] = useState<ServiceDTO[]>([]);
   const [selectedServices, setSelectedServices] = useState<SelectedService[]>(bookingData.selectedServices || []);
-  
+
   const [loadingCategories, setLoadingCategories] = useState<boolean>(true);
   const [loadingServices, setLoadingServices] = useState<boolean>(false);
   const [showStaffModal, setShowStaffModal] = useState<boolean>(false);
@@ -26,7 +26,7 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
       const response = await axios.get<ApiResponse<CategoryDTO[]>>(`${API_BASE_URL}/user/categories`, {
         params: { storeId: bookingData.storeId }
       });
-      
+
       if (response.data.code === 900) {
         setCategories(response.data.data);
       }
@@ -44,7 +44,7 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
       const response = await axios.get<ApiResponse<ServiceDTO[]>>(`${API_BASE_URL}/user/services`, {
         params: { categoryId }
       });
-      
+
       if (response.data.code === 900) {
         setServices(response.data.data);
       }
@@ -87,7 +87,7 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
         `${API_BASE_URL}/user/services/${serviceId}/staff`,
         { params: { storeId: bookingData.storeId } }
       );
-      
+
       if (response.data.code === 900) {
         setAvailableStaff(response.data.data);
       }
@@ -108,6 +108,7 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
       staffId: staff.id,
       staffName: staff.fullName,
       price: currentService.price,
+      time: currentService.duration,  // Add duration to SelectedService
       order: selectedServices.length + 1,
     };
 
@@ -138,7 +139,7 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
   };
 
   const getTotalDuration = (): number => {
-    return selectedServices.length * 15;
+    return selectedServices.reduce((sum, s) => sum + (s.time || 0), 0);
   };
 
   if (loadingCategories) {
@@ -184,7 +185,7 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
           ) : (
             services.map((service) => {
               const isSelected = selectedServices.some(s => s.serviceId === service.id);
-              
+
               return (
                 <div
                   key={service.id}
@@ -193,13 +194,17 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
                 >
                   <div className="service-image">
                     <img src={service.avt || '/assets/images/default-service.jpg'} alt={service.name} />
-                    {service.plus && <span className="plus-badge">PLUS</span>}
+
                   </div>
                   <div className="service-info">
                     <h5>{service.name}</h5>
                     <p className="service-desc">{service.description}</p>
                     <div className="service-meta">
-                      <span className="price">${service.price}</span>
+                      <span className="price">
+                        ${service.price}
+                        {service.plus && <span className="plus-badge"> + </span>}
+                      </span>
+
                       <span className="duration">{service.duration} min</span>
                     </div>
                   </div>
@@ -293,8 +298,8 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
 
       {/* Navigation */}
       <div className="step-navigation">
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="wiondefault-btn submit-btn"
           onClick={prevStep}
         >
@@ -305,8 +310,8 @@ const StepServiceSelection: React.FC<StepProps> = ({ bookingData, updateBookingD
           Back
         </button>
 
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="wiondefault-btn submit-btn"
           onClick={handleContinue}
           disabled={selectedServices.length === 0}

@@ -15,57 +15,17 @@ const StepConfirmation: React.FC<StepProps> = ({
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState<boolean>(true);
 
-  // ⭐ Debug: Component lifecycle
-  useEffect(() => {
-    console.log('\n🎯 StepConfirmation MOUNTED');
-    console.log('   📊 Initial State:');
-    console.log('      - isSubmitting:', isSubmitting);
-    console.log('      - isValidating:', isValidating);
-    console.log('      - bookingData:', bookingData);
-    
-    return () => {
-      console.log('\n🎯 StepConfirmation UNMOUNTED');
-    };
-  }, []);
-
-  // ⭐ Debug: State changes
-  useEffect(() => {
-    console.log('🔄 State Change: isSubmitting =', isSubmitting);
-  }, [isSubmitting]);
-
-  useEffect(() => {
-    console.log('🔄 State Change: isValidating =', isValidating);
-  }, [isValidating]);
-
-  useEffect(() => {
-    if (error) console.log('❌ State Change: error =', error);
-  }, [error]);
-
-  useEffect(() => {
-    if (validationError) console.log('⚠️ State Change: validationError =', validationError);
-  }, [validationError]);
-
-  // Validate availability on mount
   useEffect(() => {
     validateBookingAvailability();
   }, []);
 
-  /**
-   * Validate that selected time slots are still available
-   */
   const validateBookingAvailability = async () => {
-    console.log('\n🔍 VALIDATING BOOKING AVAILABILITY');
-    console.log('   📅 Date:', bookingData.bookingDate);
-    console.log('   ⏰ Time:', bookingData.bookingTime);
-    console.log('   👥 Services:', bookingData.selectedServices.length);
-    
     setIsValidating(true);
     setValidationError(null);
 
     try {
       // Get unique staff IDs
       const staffIds = [...new Set(bookingData.selectedServices.map(s => s.staffId))];
-      console.log('   🔍 Checking staff:', staffIds);
 
       // Fetch schedules for all staff
       const schedulePromises = staffIds.map(staffId =>
@@ -79,14 +39,13 @@ const StepConfirmation: React.FC<StepProps> = ({
       const schedulesMap: Record<number, StaffScheduleSlot[]> = {};
       results.forEach(({ staffId, slots }) => {
         schedulesMap[staffId] = slots;
-        console.log(`   📋 Staff ${staffId} has ${slots.length} booked slots`);
       });
 
       // Check each service
       const [startHours, startMins] = bookingData.bookingTime.split(':').map(Number);
       
       for (const service of bookingData.selectedServices) {
-        const offset = (service.order - 1) * 15;
+        const offset = (service.order - 1) * (service.time || 15);  // Use actual duration
         const totalMins = startHours * 60 + startMins + offset;
         const serviceTime = `${Math.floor(totalMins / 60).toString().padStart(2, '0')}:${(totalMins % 60).toString().padStart(2, '0')}`;
         
@@ -101,18 +60,15 @@ const StepConfirmation: React.FC<StepProps> = ({
           return timeSlots.some(ts => ts.startTime === serviceTime);
         });
 
-        console.log(`   🔎 Checking: ${service.staffName} @ ${serviceTime} - ${conflictingBooking ? '❌ BOOKED' : '✅ Available'}`);
 
         if (conflictingBooking) {
           const errorMsg = `${service.staffName} is not available at ${serviceTime} for ${service.serviceName}. This slot has been booked by another customer.`;
-          console.log(`   ⚠️ CONFLICT FOUND: ${errorMsg}`);
           setValidationError(errorMsg);
           setIsValidating(false);
           return;
         }
       }
 
-      console.log('   ✅ All slots are AVAILABLE');
       setIsValidating(false);
       
     } catch (err: any) {
@@ -126,28 +82,18 @@ const StepConfirmation: React.FC<StepProps> = ({
    * Handle booking submission
    */
   const handleSubmit = async () => {
-    console.log('\n🚀 CONFIRM BUTTON CLICKED');
-    console.log('   Current State:');
-    console.log('      - isSubmitting:', isSubmitting);
-    console.log('      - isValidating:', isValidating);
-    console.log('      - validationError:', validationError);
-
     if (isSubmitting) {
-      console.log('   ⚠️ Already submitting, ignoring click');
       return;
     }
 
     if (isValidating) {
-      console.log('   ⚠️ Still validating, ignoring click');
       return;
     }
 
     if (validationError) {
-      console.log('   ⚠️ Validation error exists, ignoring click');
       return;
     }
 
-    console.log('   ✅ Starting submission process');
     setIsSubmitting!(true);
     setError('');
 
@@ -156,11 +102,6 @@ const StepConfirmation: React.FC<StepProps> = ({
 
       // Step 1: Create user account if needed
       if (bookingData.isNewCustomer) {
-        console.log('\n📝 STEP 1: Creating new user account');
-        console.log('   Phone:', bookingData.phoneNumber);
-        console.log('   Name:', bookingData.fullName);
-        console.log('   DOB:', bookingData.dateOfBirth);
-
         const registerResponse = await axios.post<ApiResponse<number>>(
           `${API_BASE_URL}/auth/register`,
           {
@@ -171,25 +112,13 @@ const StepConfirmation: React.FC<StepProps> = ({
           }
         );
 
-        console.log('   Response:', registerResponse.data);
-
         if (registerResponse.data.code !== 900) {
           throw new Error(registerResponse.data.message || 'Failed to create account');
         }
 
         customerId = registerResponse.data.data;
         updateBookingData({ customerId });
-        console.log('   ✅ Account created. Customer ID:', customerId);
-      } else {
-        console.log('\n📝 STEP 1: Using existing customer ID:', customerId);
       }
-
-      // Step 2: Create booking
-      console.log('\n📅 STEP 2: Creating booking');
-      console.log('   Customer ID:', customerId);
-      console.log('   Store ID:', bookingData.storeId);
-      console.log('   DateTime:', `${bookingData.bookingDate}T${bookingData.bookingTime}`);
-      console.log('   Services:', bookingData.selectedServices.length);
 
       const bookingPayload = {
         customerId: customerId,
@@ -203,38 +132,21 @@ const StepConfirmation: React.FC<StepProps> = ({
         })),
       };
 
-      console.log('   Payload:', bookingPayload);
-
       const bookingResponse = await axios.post<ApiResponse<BookingCreatedResponse>>(
         `${API_BASE_URL}/user/create`,
         bookingPayload
       );
 
-      console.log('   Response:', bookingResponse.data);
-
       if (bookingResponse.data.code !== 900) {
         throw new Error(bookingResponse.data.message || 'Failed to create booking');
       }
 
-      console.log('   ✅ Booking created. Booking ID:', bookingResponse.data.data.id);
       updateBookingData({ bookingId: bookingResponse.data.data.id });
-
-      console.log('\n🎉 SUCCESS! Moving to success page');
-      // Note: Parent component will handle navigation when bookingId is set
-      
     } catch (err: any) {
-      console.error('\n❌ ERROR during booking process:');
-      console.error('   Type:', err.constructor.name);
-      console.error('   Message:', err.message);
-      console.error('   Response:', err.response?.data);
-      console.error('   Full error:', err);
-
       const errorMsg = err.response?.data?.message || err.message || 'Failed to create booking';
       setError(errorMsg);
       
     } finally {
-      console.log('\n🏁 Booking process FINISHED');
-      console.log('   Setting isSubmitting = false');
       setIsSubmitting!(false);
     }
   };
@@ -243,22 +155,16 @@ const StepConfirmation: React.FC<StepProps> = ({
    * Handle back button
    */
   const handleBack = () => {
-    console.log('\n🔙 BACK BUTTON CLICKED');
-    console.log('   Current isSubmitting:', isSubmitting);
-    console.log('   Current isValidating:', isValidating);
-    
     if (isSubmitting) {
-      console.log('   ⚠️ Cannot go back - currently submitting');
       return;
     }
     
-    console.log('   ✅ Going back to previous step');
     prevStep();
   };
 
   // Helper functions
   const getTotalPrice = () => bookingData.selectedServices.reduce((sum, s) => sum + s.price, 0);
-  const getTotalDuration = () => bookingData.selectedServices.length * 15;
+  const getTotalDuration = () => bookingData.selectedServices.reduce((sum, s) => sum + (s.time || 15), 0);
   
   const formatDate = () => {
     if (!bookingData.bookingDate) return '';

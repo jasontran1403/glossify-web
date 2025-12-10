@@ -843,16 +843,21 @@
   object-fit: cover;
 }
 
+.price {
+  position: relative;
+  display: inline-block;
+}
+
 .plus-badge {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background: #f6ad55;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 10px;
+  top: -6px;
+  right: -15px;
+  color: #f6ad55;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 16px;
   font-weight: 700;
+  line-height: 1;
 }
 
 .service-info {

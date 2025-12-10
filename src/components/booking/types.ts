@@ -7,6 +7,7 @@ export interface BookingData {
   dateOfBirth: string;
   customerId: number | null;
   isNewCustomer: boolean;
+  time: number;
   
   // Store Selection
   storeId: number | null;
@@ -30,6 +31,7 @@ export interface SelectedService {
   staffName: string;
   price: number;
   order: number;
+  time: number;
 }
 
 export interface StoreDTO {
