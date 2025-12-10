@@ -31,6 +31,7 @@ const BookingFlow: React.FC = () => {
     dateOfBirth: '',
     customerId: null,
     isNewCustomer: false,
+    time: 0,
     
     // Store Selection
     storeId: null,
@@ -83,6 +84,7 @@ const BookingFlow: React.FC = () => {
               bookingDate: null,
               bookingTime: '',
               bookingId: null,
+              time: 0,
             });
             setCurrentStep(1);
           }}
