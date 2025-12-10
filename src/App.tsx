@@ -13,6 +13,8 @@ import NotFound from "./error";
 import PortfolioOne from "./components/portfolio-1";
 // import Contactus1 from "./components/contact-us1";
 import BookingFlow from "./components/booking/BookingFlow";
+import { ToastProvider } from './components/booking/Toast';
+
 
 const router = createBrowserRouter([
   { path: "/", element: <HomeOne /> },
@@ -32,17 +34,19 @@ const router = createBrowserRouter([
 function App() {
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div className="preloader">
-        <div className="preloader-inner">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </div>}>
-        <RouterProvider router={router} />
-      </Suspense>
-    </ErrorBoundary>
+      <ToastProvider>
+        <Suspense fallback={<div className="preloader">
+          <div className="preloader-inner">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>}>
+          <RouterProvider router={router} />
+        </Suspense>
+      </ToastProvider>
+    </ErrorBoundary >
 
   );
 }
